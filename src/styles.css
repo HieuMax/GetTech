@@ -1,0 +1,15 @@
+/* @import "tailwindcss"; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.slick-slide > div {
+  margin: 0 10px;
+}
+
+.slick-slide div {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    cursor: pointer;
+  }
