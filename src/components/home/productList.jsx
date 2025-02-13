@@ -77,7 +77,7 @@ const mockProducts = [
   },
   {
     id: 7,
-    name: "Compact Wireless Controller",
+    name: "Compact ",
     description: "Perfect for gaming on the go",
     image: "/product.png",
     rating: 1,

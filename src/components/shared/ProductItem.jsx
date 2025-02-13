@@ -39,7 +39,7 @@ export const ProductItem = ({ product }) => {
       <div className=" relative flex-1 flex flex-col justify-between mt-3">
 
         <div>
-          <div className="flex gap-1 flex-row">
+          <div className="flex  justify-between gap-1 flex-row">
             <h3 className="text-lg font-semibold break-words">
               {product.name}
             </h3>
