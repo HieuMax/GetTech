@@ -18,10 +18,10 @@ export const ProductItem = ({ product }) => {
     );
   };
   return (
-    <div className="w-[280px] px-[13px] h-[480px]  rounded-2xl   flex flex-col ">
+    <div className="w-[280px] max-lg:w-[240px] max-md:w-[220px] max-mb_L:w-[280px] px-[13px] h-[480px] max-lg:h-[450px] rounded-2xl mb-6 flex flex-col cursor-pointer">
 
         {/* HINH ANH  */}
-      <div className="relative h-[240px]">
+      <div className="relative h-[240px] max-lg:h-[200px]">
         <img
           src={product.image}
           alt={product.name}
@@ -38,7 +38,7 @@ export const ProductItem = ({ product }) => {
       {/* CONTENT */}
       <div className=" relative flex-1 flex flex-col justify-between mt-3">
 
-        <div>
+        <div className="min-h-[120px]">
           <div className="flex  justify-between gap-1 flex-row">
             <h3 className="text-lg font-semibold break-words">
               {product.name}

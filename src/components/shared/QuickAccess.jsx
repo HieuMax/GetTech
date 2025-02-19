@@ -17,22 +17,22 @@ const accesses = [
 
 export const QuickAccess = () => {
   const settings = {
-    dots: false,
+    dots: true,
     infinite: true,
+    autoplaySpeed: 3000,
+    autoplay: true,
+    arrows: false,
     speed: 500,
     slidesToShow: 5,
     slidesToScroll: 1,
-    arrows: true,
-    nextArrow: <SampleNextArrow />,
-    prevArrow: <SamplePrevArrow />,
     centerPadding: '30px',
   }
 
   return (
-    <div className="my-5 max-w-[1280px] mx-auto pb-3">
-      <Slider {...settings} className='p-2 gap-x-4 '>
+    <div className="my-5 max-w-[1280px] mx-auto pb-3 max-md:hidden">
+      <Slider {...settings} className='max-2xl:px-0 p-2 gap-x-4 '>
         {accesses.map((access, index) => (
-          <div key={index} className="p-3 my-3 bg-white shadow flex items-center gap-2 hover:bg-gray-100 rounded-xl">
+          <div key={index} className="max-2xl:px-0 p-3 my-3 bg-white shadow flex items-center gap-2 hover:bg-gray-100 rounded-xl">
             <span>{access.icon}</span>
             <span>{access.label}</span>
           </div>

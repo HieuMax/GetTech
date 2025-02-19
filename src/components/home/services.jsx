@@ -23,7 +23,7 @@ const services = [
 
 export const Services = () => {
   return (
-    <div className="flex  justify-between py-10">
+    <div className="flex justify-between py-10 max-lg:grid-cols-2 max-lg:grid max-lg:gap-5 max-lg:px-5">
       {services.map((services, index) => (
         <div
           key={index}
