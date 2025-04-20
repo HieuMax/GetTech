@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import AddUser from './components/AddUser';
-import UserList from './components/UserList';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// import './App.css';
 import Login from './components/Login';
-import './App.css';
+import { RootLayout } from './pages/0.RootLayout';
+import HomePage from './pages/1.Home';
+import { Shop } from './pages/3.Shop';
 
 function App() {
     const [users, setUsers] = useState([]);
-    const [editingId, setEditingId] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
@@ -16,6 +18,11 @@ function App() {
         const checkAuthAndFetchData = async () => {
             const accessToken = localStorage.getItem('accessToken');
             const refreshToken = localStorage.getItem('refreshToken');
+            const storedUser = localStorage.getItem('user');
+            
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
             
             if (!accessToken && !refreshToken) {
                 setIsLoading(false);
@@ -23,7 +30,6 @@ function App() {
             }
             
             try {
-                // If we have an access token, try to use it
                 if (accessToken) {
                     const response = await fetch('http://localhost:5000/api/objects', {
                         headers: {
@@ -37,21 +43,16 @@ function App() {
                         setIsAuthenticated(true);
                         setError(null);
                     } else if (response.status === 401 && refreshToken) {
-                        // Access token expired, try to refresh
                         const refreshed = await refreshAccessToken();
                         if (refreshed) {
-                            // Retry fetching data with new token
                             await fetchUsers();
                         }
                     } else {
-                        // Other error or no refresh token
                         handleLogout();
                     }
                 } else if (refreshToken) {
-                    // Only refresh token exists, try to get a new access token
                     const refreshed = await refreshAccessToken();
                     if (refreshed) {
-                        // Fetch data with new token
                         await fetchUsers();
                     }
                 }
@@ -134,69 +135,69 @@ function App() {
         }
     };
 
-    const handleSubmit = async (formData) => {
-        try {
-            const url = editingId
-                ? `http://localhost:5000/api/objects/${editingId}`
-                : 'http://localhost:5000/api/objects';
+    // const handleSubmit = async (formData) => {
+    //     try {
+    //         const url = editingId
+    //             ? `http://localhost:5000/api/objects/${editingId}`
+    //             : 'http://localhost:5000/api/objects';
             
-            const method = editingId ? 'PUT' : 'POST';
+    //         const method = editingId ? 'PUT' : 'POST';
             
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                },
-                body: JSON.stringify(formData)
-            });
+    //         const response = await fetch(url, {
+    //             method,
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    //             },
+    //             body: JSON.stringify(formData)
+    //         });
 
-            if (!response.ok) {
-                throw { status: response.status };
-            }
+    //         if (!response.ok) {
+    //             throw { status: response.status };
+    //         }
 
-            await fetchUsers();
-            setEditingId(null);
-            setError(null);
-        } catch (error) {
-            try {
-                await handleApiError(error, () => handleSubmit(formData));
-            } catch (finalError) {
-                setError('Failed to save user. Please try again.');
-                console.error('Error saving user:', finalError);
-            }
-        }
-    };
+    //         await fetchUsers();
+    //         setEditingId(null);
+    //         setError(null);
+    //     } catch (error) {
+    //         try {
+    //             await handleApiError(error, () => handleSubmit(formData));
+    //         } catch (finalError) {
+    //             setError('Failed to save user. Please try again.');
+    //             console.error('Error saving user:', finalError);
+    //         }
+    //     }
+    // };
 
-    const handleEdit = (user) => {
-        console.log('Editing user:', user);
-        setEditingId(user._id);
-    };
+    // const handleEdit = (user) => {
+    //     console.log('Editing user:', user);
+    //     setEditingId(user._id);
+    // };
 
-    const handleDelete = async (id) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/objects/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                }
-            });
+    // const handleDelete = async (id) => {
+    //     try {
+    //         const response = await fetch(`http://localhost:5000/api/objects/${id}`, {
+    //             method: 'DELETE',
+    //             headers: {
+    //                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    //             }
+    //         });
 
-            if (!response.ok) {
-                throw { status: response.status };
-            }
+    //         if (!response.ok) {
+    //             throw { status: response.status };
+    //         }
 
-            await fetchUsers();
-            setError(null);
-        } catch (error) {
-            try {
-                await handleApiError(error, () => handleDelete(id));
-            } catch (finalError) {
-                setError('Failed to delete user. Please try again.');
-                console.error('Error deleting user:', finalError);
-            }
-        }
-    };
+    //         await fetchUsers();
+    //         setError(null);
+    //     } catch (error) {
+    //         try {
+    //             await handleApiError(error, () => handleDelete(id));
+    //         } catch (finalError) {
+    //             setError('Failed to delete user. Please try again.');
+    //             console.error('Error deleting user:', finalError);
+    //         }
+    //     }
+    // };
 
     const handleLogin = (userData) => {
         setIsAuthenticated(true);
@@ -207,6 +208,7 @@ function App() {
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         setIsAuthenticated(false);
         setUser(null);
         setUsers([]);
@@ -217,42 +219,54 @@ function App() {
         return <div className="loading">Loading...</div>;
     }
 
-    if (!isAuthenticated) {
-        return <Login onLogin={handleLogin} />;
-    }
-
-    // Find the user being edited
-    const userToEdit = editingId ? users.find(u => u._id === editingId) : null;
-    console.log('User to edit:', userToEdit);
-
     return (
-        <div className="App">
-            <header className="App-header">
-                <h1>Student Management System</h1>
-                <div className="user-info">
-                    <span>Welcome, {user?.name}</span>
-                    <button onClick={handleLogout}>Logout</button>
-                </div>
-            </header>
-            {error && (
-                <div className="error-message">
-                    {error}
-                </div>
-            )}
-            <main>
-                <AddUser
-                    onSubmit={handleSubmit}
-                    editingId={editingId}
-                    initialData={userToEdit}
-                    onCancel={() => setEditingId(null)}
-                />
-                <UserList
-                    users={users}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
-            </main>
-        </div>
+        // <Router>
+        //     <div className="App">
+        //         {isAuthenticated && (
+        //             <header className="App-header">
+        //                 <h1>Phone Management System</h1>
+        //                 <div className="user-info">
+        //                     <span>Welcome, {user?.username}</span>
+        //                     <button onClick={handleLogout}>Logout</button>
+        //                 </div>
+        //             </header>
+        //         )}
+        //         {error && (
+        //             <div className="error-message">
+        //                 {error}
+        //             </div>
+        //         )}
+        //         <Routes>
+        //             <Route path="/" element={
+        //                 !isAuthenticated ? (
+        //                     <Login onLogin={handleLogin} />
+        //                 ) : (
+        //                     <Navigate to={user?.role === 'admin' ? '/admin' : '/'} />
+        //                 )
+        //             } />
+        //             <Route path="/admin" element={
+        //                 isAuthenticated && user?.role === 'admin' ? (
+        //                     <Admin />
+        //                 ) : (
+        //                     <Navigate to="/" />
+        //                 )
+        //             } />
+        //         </Routes>
+        //     </div>
+        // </Router>
+
+        <Routes>
+            <Route element={<RootLayout/>}>
+                <Route path='/' element={<HomePage />} />
+                <Route path='/shop' element={<Shop />} />
+                <Route path='/login' element={<Login onLogin={handleLogin} />} />
+                {/* <Route path='/survey' element={<Survey />}/> */}
+                {/* <Route path='/change-mind' element={<ChangeMind />}/> */}
+                {/* <Route path='/complete' element={<CompletePage />}/> */}
+                {/* <Route path='/thank-you' element={<ThankYou />}/> */}
+                {/* <Route path='/*' element={<NotFound/>}/> */}
+            </Route>
+        </Routes>
     );
 }
 
