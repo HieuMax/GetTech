@@ -5,7 +5,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const { authenticate } = require('./middleware/auth');
 const connectMongoDB = require('./db');
-const Product = require('./Product');
+const product = require('./models/product');
 
 // Initialize Express app
 const app = express();
@@ -31,7 +31,7 @@ app.get('/api/protected', authenticate, (req, res) => {
 // GET all products - Protected
 app.get('/api/objects', authenticate, async (req, res) => {
     try {
-        const products = await Product.find();
+        const products = await product.find();
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving products', error: error.message });
@@ -41,7 +41,7 @@ app.get('/api/objects', authenticate, async (req, res) => {
 // Root route - Protected
 app.get('/', authenticate, async (req, res) => {
     try {
-        const products = await Product.find();
+        const products = await product.find();
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving products', error: error.message });
@@ -94,7 +94,7 @@ app.get("/api/phones", async (req, res) => {
     const limit = parseInt(req.query.limit) || 0;
 
     if (limit === 0) {
-      const phones = await Phone.find().sort({ createdAt: -1 });
+      const phones = await product.find().sort({ createdAt: -1 });
       return res.json({
         total: phones.length,
         page: 1,
@@ -105,12 +105,12 @@ app.get("/api/phones", async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const phones = await Phone.find()
+    const phones = await product.find()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const totalPhones = await Phone.countDocuments();
+    const totalPhones = await product.countDocuments();
 
     res.json({
       total: totalPhones,
@@ -135,7 +135,7 @@ app.post("/api/createPhone", async (req, res) => {
         .json({ message: "Vui lòng điền đầy đủ các trường bắt buộc!" });
     }
 
-    const existingPhone = await Phone.findOne({ ID });
+    const existingPhone = await product.findOne({ ID });
     if (existingPhone) {
       return res.status(409).json({ message: "ID sản phẩm đã tồn tại!" });
     }
@@ -156,7 +156,7 @@ app.post("/api/createPhone", async (req, res) => {
       rating,
     });
 
-    await newPhone.save();
+    await newproduct.save();
 
     return res
       .status(201)
@@ -176,7 +176,7 @@ app.get("/api/phones/next-id/:category", async (req, res) => {
   }
 
   try {
-    const latestPhone = await Phone.findOne({
+    const latestProduct = await product.findOne({
       ID: { $regex: `^PROD${category}` },
     })
       .sort({ createdAt: -1 })
@@ -184,12 +184,12 @@ app.get("/api/phones/next-id/:category", async (req, res) => {
 
     let nextNumber = "0001";
 
-    if (latestPhone) {
-      const lastID = latestPhone.ID;
+    if (latestProduct) {
+      const lastID = latestProduct.id;
       const lastNumber = parseInt(lastID.slice(-4));
       nextNumber = (lastNumber + 1).toString().padStart(4, "0");
     }
-    console.log(latestPhone);
+    console.log(latestProduct);
 
     const nextID = `PROD${category}${nextNumber}`;
     res.json({ nextID });
