@@ -5,7 +5,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const { authenticate } = require('./middleware/auth');
 const connectMongoDB = require('./db');
-const Product = require('./models/product');
+const Product = require('./Product');
 
 // Initialize Express app
 const app = express();
@@ -168,7 +168,7 @@ const phoneSchema = new mongoose.Schema(
   // Hàm API: GET tất cả sản phẩm
   app.get("/api/phones", async (req, res) => {
     try {
-      const phones = await Phone.find().sort({ createdAt: -1 }); // sắp xếp theo mới nhất
+      const phones = await Product.find().sort({ createdAt: -1 }); // sắp xếp theo mới nhất
       res.json(phones);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách sản phẩm:", error);

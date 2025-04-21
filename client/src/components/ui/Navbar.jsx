@@ -1,9 +1,11 @@
 import React from 'react'
-import { FaUser, FaShoppingCart, FaSearch, FaHeart } from 'react-icons/fa'; // Example icons from FontAwesome
+import { FaUser, FaShoppingCart, FaSearch, FaHeart, FaSignOutAlt } from 'react-icons/fa'; // Example icons from FontAwesome
 import { IoListOutline } from 'react-icons/io5';
-import { CgClose } from 'react-icons/cg';
+import { CgClose, CgLogOut } from 'react-icons/cg';
 import { FaChevronDown } from 'react-icons/fa'; // Import down arrow icon from FontAwesome
 import { Link } from 'react-router-dom';
+import CartIcon from '../CartIcon';
+import { useAuth } from '../../store/AuthContext';
 
 const navigators = [
   { label: "Home", link: "/" },
@@ -30,6 +32,8 @@ const categories = [ "All Categories", "Phone", "Laptop", "Tablet", "Accessories
 
 export const NavBar = ({props}) => {
 //  console.log(props)
+    const { logout, isAuthenticated } = useAuth();
+
   return (
     <div className='my-5 flex flex-col gap-5'>
         <div className="flex items-center justify-between font-semibold">
@@ -61,8 +65,8 @@ export const NavBar = ({props}) => {
                 <Link to={'/login'} className="p-2 bg-gray-200 rounded cursor-pointer">
                     <FaUser className="text-xl" />
                 </Link>
-                <div className="p-2 bg-gray-200 rounded cursor-pointer">
-                    <FaShoppingCart className="text-xl" />
+                <div className="p-2 bg-gray-200 rounded cursor-pointer"> 
+                    <CartIcon />
                 </div>
                 <div className="p-2 bg-gray-200 rounded cursor-pointer hidden max-md:flex z-100" onClick={() => props.expFunc()}>
                     <IoListOutline className="text-xl" />

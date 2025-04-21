@@ -1,0 +1,239 @@
+import { createContext, useContext, useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+
+// Create the auth context
+const AuthContext = createContext(undefined)
+
+// Provider component that wraps your app and makes auth object available to any child component that calls useAuth().
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
+
+  // Check if user is logged in on initial load
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      try {
+        const storedUser = localStorage.getItem("user")
+        const accessToken = localStorage.getItem("accessToken")
+
+        if (storedUser && accessToken) {
+          // Validate token with your backend if needed
+          // const isValid = await validateToken(accessToken)
+          // if (!isValid) {
+          //   throw new Error("Invalid token")
+          // }
+
+          setUser(JSON.parse(storedUser))
+        }
+      } catch (error) {
+        console.error("Authentication error:", error)
+        logout()
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkLoggedIn()
+  }, [])
+
+  // Login function
+  const login = async (credentials) => {
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Store tokens in localStorage
+        localStorage.setItem("accessToken", data.accessToken)
+        localStorage.setItem("refreshToken", data.refreshToken)
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: data.userId,
+            username: data.username,
+            role: data.role,
+            iat: data.iat,
+          })
+        )
+
+        // Update state
+        setUser({
+          id: data.userId,
+          username: data.username,
+          role: data.role,
+          iat: data.iat,
+        })
+
+        return { success: true, data }
+      } else {
+        setError(data.message || "Login failed")
+        return { success: false, error: data.message || "Login failed" }
+      }
+    } catch (error) {
+      const errorMessage = "Error connecting to server"
+      setError(errorMessage)
+      return { success: false, error: errorMessage }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Logout function
+  const logout = () => {
+    // Clear localStorage
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("user")
+
+    // Clear state
+    setUser(null)
+
+    // Redirect to login
+    navigate("/login")
+  }
+
+  // Get user profile data
+  const getUserProfile = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken")
+      
+      if (!accessToken) {
+        throw new Error("No access token found")
+      }
+
+      const response = await fetch("http://localhost:5000/api/users/profile", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user profile")
+      }
+
+      const data = await response.json()
+      return { success: true, data }
+    } catch (error) {
+      console.error("Error fetching user profile:", error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Update user profile
+  const updateProfile = async (profileData) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken")
+      
+      if (!accessToken) {
+        throw new Error("No access token found")
+      }
+
+      const response = await fetch("http://localhost:5000/api/users/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(profileData),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile")
+      }
+
+      const data = await response.json()
+      
+      // Update local user data if needed
+      if (profileData.username) {
+        setUser(prev => ({
+          ...prev,
+          username: profileData.username
+        }))
+        
+        // Update localStorage
+        const storedUser = JSON.parse(localStorage.getItem("user"))
+        localStorage.setItem("user", JSON.stringify({
+          ...storedUser,
+          username: profileData.username
+        }))
+      }
+      
+      return { success: true, data }
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Change password
+  const changePassword = async (passwordData) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken")
+      
+      if (!accessToken) {
+        throw new Error("No access token found")
+      }
+
+      const response = await fetch("http://localhost:5000/api/users/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(passwordData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Failed to change password")
+      }
+
+      const data = await response.json()
+      return { success: true, data }
+    } catch (error) {
+      console.error("Error changing password:", error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Check if user is authenticated
+  const isAuthenticated = () => {
+    return !!user
+  }
+
+  // Context value
+  const value = {
+    user,
+    loading,
+    error,
+    login,
+    logout,
+    isAuthenticated,
+    getUserProfile,
+    updateProfile,
+    changePassword
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+// Custom hook to use the auth context
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider")
+  }
+  return context
+}

@@ -101,7 +101,7 @@ const authenticateUser = async (username, password) => {
       success: true, 
       // userId: user._id,
       username: user.username,
-      // role: user.role,
+      role: user.role,
       iat: tokens.iat,
       ...tokens 
     };

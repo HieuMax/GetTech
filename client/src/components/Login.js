@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({
@@ -147,9 +148,9 @@ const Login = ({ onLogin }) => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             Don't have an account?{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors">
+            <Link to={'/register'} className="text-blue-600 hover:text-blue-500 font-medium transition-colors">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>

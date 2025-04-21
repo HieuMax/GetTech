@@ -6,6 +6,11 @@ import Login from './components/Login';
 import { RootLayout } from './pages/0.RootLayout';
 import HomePage from './pages/1.Home';
 import { Shop } from './pages/3.Shop';
+import Signup from './components/SignUp';
+import Admin from './components/Admin';
+import Profile from './components/Profile';
+import { AuthProvider } from './store/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
     const [users, setUsers] = useState([]);
@@ -199,6 +204,8 @@ function App() {
     //     }
     // };
 
+
+    
     const handleLogin = (userData) => {
         setIsAuthenticated(true);
         setUser(userData);
@@ -254,19 +261,36 @@ function App() {
         //         </Routes>
         //     </div>
         // </Router>
+        <AuthProvider>
+            <Routes>
+                <Route element={<RootLayout/>}>
+                    <Route path='/' element={<HomePage />} />
+                    <Route path='/shop' element={<Shop />} />
+                    <Route path='/login' element={
+                        !isAuthenticated ? (
+                            <Login onLogin={handleLogin} />
+                        ) : (
+                            <Navigate to={user?.role === 'admin' ? '/admin' : '/profile'} />
+                        )
+                    } />
+                    <Route path='/register' element={<Signup />} />
+                    <Route path='/profile' element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    } />
+                </Route>
 
-        <Routes>
-            <Route element={<RootLayout/>}>
-                <Route path='/' element={<HomePage />} />
-                <Route path='/shop' element={<Shop />} />
-                <Route path='/login' element={<Login onLogin={handleLogin} />} />
-                {/* <Route path='/survey' element={<Survey />}/> */}
-                {/* <Route path='/change-mind' element={<ChangeMind />}/> */}
-                {/* <Route path='/complete' element={<CompletePage />}/> */}
-                {/* <Route path='/thank-you' element={<ThankYou />}/> */}
-                {/* <Route path='/*' element={<NotFound/>}/> */}
-            </Route>
-        </Routes>
+                <Route path="/admin" element={
+                    isAuthenticated && user?.role === 'admin' ? (
+                            <Admin />
+                        ) : (
+                            <Navigate to="/" />
+                        )
+                    }            
+                />
+            </Routes>
+        </AuthProvider>
     );
 }
 
