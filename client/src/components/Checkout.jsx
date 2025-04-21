@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useCart } from "../store/CartContext"
+import { useAuth } from "../store/AuthContext"
 
 // Step indicators component
 const CheckoutSteps = ({ currentStep }) => {
+
   const steps = [
     { id: 1, name: "Shipping" },
     { id: 2, name: "Payment" },
@@ -43,7 +45,7 @@ const OrderSummary = ({ cartItems, totalPrice, showDetails = true }) => {
 
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
-      <h3 className="font-medium text-lg mb-4">Order Summary</h3>
+      <h3 className="font-medium text-lg mb-4">Đơn hàng của bạn</h3>
 
       {showDetails && cartItems.length > 0 && (
         <div className="mb-4 max-h-60 overflow-y-auto">
@@ -71,20 +73,20 @@ const OrderSummary = ({ cartItems, totalPrice, showDetails = true }) => {
 
       <div className="space-y-2 pt-2">
         <div className="flex justify-between text-sm">
-          <span>Subtotal</span>
+          <span>Tạm tính</span>
           <span>${totalPrice.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>Shipping</span>
+          <span>Phí vận chuyển</span>
           <span>${shipping.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>Tax (8%)</span>
+          <span>Thuế (8%)</span>
           <span>${tax.toFixed(2)}</span>
         </div>
         <div className="border-t pt-2 mt-2">
           <div className="flex justify-between font-medium">
-            <span>Total</span>
+            <span>Tổng</span>
             <span>${grandTotal.toFixed(2)}</span>
           </div>
         </div>
@@ -101,18 +103,16 @@ export default function Checkout() {
   const [error, setError] = useState("")
   const [orderComplete, setOrderComplete] = useState(false)
   const [orderId, setOrderId] = useState("")
+  const { user } = useAuth();
 
   // Form states
   const [shippingInfo, setShippingInfo] = useState({
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "United States",
-    phone: "",
-    email: "",
+    name: user?.name || "",
+    address: user?.address ||"",
+    city: user?.city ||"",
+    state: user?.state ||"",
+    phone: user?.phone || "",
+    email: user?.mail || "",
   })
 
   const [paymentInfo, setPaymentInfo] = useState({
@@ -198,13 +198,12 @@ export default function Checkout() {
   const validateShippingForm = () => {
     // Basic validation
     if (
-      !shippingInfo.firstName ||
-      !shippingInfo.lastName ||
+      !shippingInfo.name ||
       !shippingInfo.address ||
       !shippingInfo.city ||
       !shippingInfo.state ||
-      !shippingInfo.zipCode ||
-      !shippingInfo.email
+      !shippingInfo.phone ||
+      !shippingInfo.email 
     ) {
       setError("Please fill in all required fields")
       return false
@@ -224,13 +223,6 @@ export default function Checkout() {
         setError("Please enter a valid 10-digit phone number")
         return false
       }
-    }
-
-    // Zip code validation
-    const zipRegex = /^\d{5}(-\d{4})?$/
-    if (!zipRegex.test(shippingInfo.zipCode)) {
-      setError("Please enter a valid ZIP code")
-      return false
     }
 
     setError("")
@@ -325,18 +317,18 @@ export default function Checkout() {
   // Render shipping form
   const renderShippingForm = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Shipping Information</h2>
+      <h2 className="text-xl font-semibold">Thông tin vận chuyển</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span className="text-red-500">*</span>
+            Tên người nhận <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            id="firstName"
-            name="firstName"
-            value={shippingInfo.firstName}
+            id="name"
+            name="name"
+            value={shippingInfo.name}
             onChange={handleShippingChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required
@@ -344,14 +336,14 @@ export default function Checkout() {
         </div>
 
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name <span className="text-red-500">*</span>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+            Số điện thoại <span className="text-red-500">*</span>
           </label>
           <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            value={shippingInfo.lastName}
+            type="tel"
+            id="phone"
+            name="phone"
+            value={shippingInfo.phone}
             onChange={handleShippingChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required
@@ -359,25 +351,10 @@ export default function Checkout() {
         </div>
       </div>
 
-      <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-          Street Address <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="address"
-          name="address"
-          value={shippingInfo.address}
-          onChange={handleShippingChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-            City <span className="text-red-500">*</span>
+            Thành phố <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -392,7 +369,7 @@ export default function Checkout() {
 
         <div>
           <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-            State <span className="text-red-500">*</span>
+            Quận / huyện <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -404,46 +381,24 @@ export default function Checkout() {
             required
           />
         </div>
-
-        <div>
-          <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-            ZIP Code <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="zipCode"
-            name="zipCode"
-            value={shippingInfo.zipCode}
-            onChange={handleShippingChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </div>
       </div>
 
       <div>
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
-          Country <span className="text-red-500">*</span>
+        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+          Địa chỉ <span className="text-red-500">*</span>
         </label>
-        <select
-          id="country"
-          name="country"
-          value={shippingInfo.country}
+        <input
+          type="text"
+          id="address"
+          name="address"
+          value={shippingInfo.address}
           onChange={handleShippingChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           required
-        >
-          <option value="United States">United States</option>
-          <option value="Canada">Canada</option>
-          <option value="United Kingdom">United Kingdom</option>
-          <option value="Australia">Australia</option>
-          <option value="Germany">Germany</option>
-          <option value="France">France</option>
-          <option value="Japan">Japan</option>
-        </select>
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email <span className="text-red-500">*</span>
@@ -459,19 +414,7 @@ export default function Checkout() {
           />
         </div>
 
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={shippingInfo.phone}
-            onChange={handleShippingChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
+
       </div>
     </div>
   )
@@ -600,15 +543,11 @@ export default function Checkout() {
       <h2 className="text-xl font-semibold">Review Your Order</h2>
 
       <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-2">Shipping Address</h3>
+        <h3 className="font-medium mb-2">Thông tin nhận hàng</h3>
         <p>
-          {shippingInfo.firstName} {shippingInfo.lastName}
+          <span className="text-gray-400 italic">Người nhận hàng: </span> {shippingInfo.name}
           <br />
-          {shippingInfo.address}
-          <br />
-          {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}
-          <br />
-          {shippingInfo.country}
+          <span className="text-gray-400 italic">Địa chỉ nhận hàng:  </span>{shippingInfo.address}, {shippingInfo.city}, {shippingInfo.state}
           <br />
           {shippingInfo.email}
           {shippingInfo.phone && (
@@ -624,7 +563,7 @@ export default function Checkout() {
       </div>
 
       <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-2">Payment Method</h3>
+        <h3 className="font-medium mb-2">Phương thức thanh toán</h3>
         <p>
           {paymentInfo.cardName}
           <br />

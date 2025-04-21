@@ -53,51 +53,57 @@ export const ProductItem = ({ product }) => {
   };
 
   return (
-    <div className="w-[280px] max-lg:w-[240px] max-md:w-[220px] max-mb_L:w-[280px] px-[13px] h-[480px] max-lg:h-[450px] rounded-2xl mb-6 flex flex-col cursor-pointer shadow-lg"
-      onClick={() => {
-        navigate(`/shop/${product.id}`)
-      }}
-    >
+    <div className="w-[280px] max-lg:w-[240px] max-md:w-[220px] max-mb_L:w-[280px] px-[13px] h-[500px] max-lg:h-[450px] rounded-2xl mb-6 flex flex-col cursor-pointer shadow-lg">
       {/* HINH ANH  */}
-      <div className="relative h-[240px] max-lg:h-[200px]">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover rounded-md"
-        />
+      <div className="" 
+        onClick={() => {
+          navigate(`/shop/${product.id}`)
+        }}
+      >
+        <div className="relative h-[240px] max-lg:h-[200px]">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-full object-cover rounded-md"
+          />
+        </div>
+
+        {/* CONTENT */}
+        <div className=" relative flex-1 flex flex-col justify-between my-3">
+          <div className="min-h-[120px]">
+            <div className="flex  justify-between gap-1 flex-row">
+              <h3 className="text-lg font-semibold break-words">
+                {product.name}
+              </h3>
+              {/* <i class="fa-regular pt-2 fa-heart text-gray-500 text-lg cursor-pointer hover:text-red-500"></i> */}
+            </div>
+            <p className="text-gray-500 text-sm break-words">
+              {product.description}
+            </p>
+
+            {/* RATE */}
+          </div>
+
+          {/* PRICE */}
+          <div className="mt-2 font-semibold flex flex-row items-center  justify-between">
+            <div className="flex items-center mt-1 gap-1">
+              {renderStars(product.rating)}
+            </div>
+            <span className="text-[15px] font-bold text-black float-end">
+              ${product.price}
+            </span>
+          </div>
+
+          {/* BUTTON */}
+          {/* <button onClick={handleAddToCart} className="my-3 w-full text-[15px] bg-white border font-medium border-gray-300 text-[#334154] py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-200">
+            <i class="fa-solid fa-bag-shopping"></i> Add to bag
+          </button> */}
+
+        </div>
       </div>
 
-      {/* CONTENT */}
-      <div className=" relative flex-1 flex flex-col justify-between my-3">
-        <div className="min-h-[120px]">
-          <div className="flex  justify-between gap-1 flex-row">
-            <h3 className="text-lg font-semibold break-words">
-              {product.name}
-            </h3>
-            {/* <i class="fa-regular pt-2 fa-heart text-gray-500 text-lg cursor-pointer hover:text-red-500"></i> */}
-          </div>
-          <p className="text-gray-500 text-sm break-words">
-            {product.description}
-          </p>
 
-          {/* RATE */}
-        </div>
-
-        {/* PRICE */}
-        <div className="mt-2 font-semibold flex flex-row items-center  justify-between">
-          <div className="flex items-center mt-1 gap-1">
-            {renderStars(product.rating)}
-          </div>
-          <span className="text-[15px] font-bold text-black float-end">
-            ${product.price}
-          </span>
-        </div>
-
-        {/* BUTTON */}
-        {/* <button onClick={handleAddToCart} className="my-3 w-full text-[15px] bg-white border font-medium border-gray-300 text-[#334154] py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-200">
-          <i class="fa-solid fa-bag-shopping"></i> Add to bag
-        </button> */}
-
+      <div className="my-3">
         <button
           onClick={handleAddToCart}
           disabled={isAdding}

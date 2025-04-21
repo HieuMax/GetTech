@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 
 // import './App.css';
@@ -16,7 +14,7 @@ import Admin from "./pages/2.Admin";
 import AddProduct from "./components/AddProduct";
 import ProductListAdmin from "./components/ProductListAdmin";
 import Profile from "./components/Profile";
-import { AuthProvider, useAuth } from "./store/AuthContext";
+import { AuthProvider } from "./store/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Checkout from "./components/Checkout";
 import ProductDetail from "./pages/4.ProductDetail";
@@ -24,11 +22,6 @@ import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
 
-  // const { isAuthenticated, user } = useAuth();
-  // const [users, setUsers] = useState([]);
-  // const [user, setUser] = useState(null);
-  // const [error, setError] = useState(null);
-  // const [isLoading, setIsLoading] = useState(true);
 
   // useEffect(() => {
   //   const checkAuthAndFetchData = async () => {
@@ -129,31 +122,6 @@ function App() {
   //   throw error;
   // };
 
-  // const fetchUsers = async () => {
-  //   try {
-  //     const response = await fetch("http://localhost:5000/api/objects", {
-  //       headers: {
-  //         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw { status: response.status };
-  //     }
-
-  //     const data = await response.json();
-  //     setUsers(data);
-  //     setError(null);
-  //   } catch (error) {
-  //     try {
-  //       await handleApiError(error, fetchUsers);
-  //     } catch (finalError) {
-  //       setError("Failed to fetch users. Please try logging in again.");
-  //       console.error("Error fetching users:", finalError);
-  //     }
-  //   }
-  // };
-
   // const handleSubmit = async (formData) => {
   //     try {
   //         const url = editingId
@@ -217,26 +185,6 @@ function App() {
   //         }
   //     }
   // };
-
-  // const handleLogin = (userData) => {
-  //   setIsAuthenticated(true);
-  //   setUser(userData);
-  //   fetchUsers();
-  // };
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem("accessToken");
-  //   localStorage.removeItem("refreshToken");
-  //   localStorage.removeItem("user");
-  //   setIsAuthenticated(false);
-  //   setUser(null);
-  //   setUsers([]);
-  //   setError(null);
-  // };
-
-  // if (isLoading) {
-  //   return <div className="loading">Loading...</div>;
-  // }
 
   return (
     <AuthProvider>

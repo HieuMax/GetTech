@@ -3,40 +3,16 @@ import { FaUser, FaShoppingCart, FaSearch } from "react-icons/fa"; // Example ic
 import { IoListOutline } from "react-icons/io5";
 import { CgClose } from "react-icons/cg";
 import { FaChevronDown } from "react-icons/fa"; // Import down arrow icon from FontAwesome
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CartIcon from "../CartIcon";
 import { useAuth } from "../../store/AuthContext";
 
 const navigators = [
   { label: "Home", link: "/" },
   { label: "Shop", link: "/shop" },
-  {
-    label: "Phone",
-    link: "#",
-    // children: [
-    //   { label: "iPhone 12", link: "#" },
-    //   { label: "iPhone 13", link: "#" },
-    //   { label: "iPhone 14", link: "#" },
-    // ],
-  },
-  {
-    label: "Tablet",
-    link: "#",
-    // children: [
-    //   { label: "Galaxy S21", link: "#" },
-    //   { label: "Galaxy S22", link: "#" },
-    //   { label: "Galaxy S23", link: "#" },
-    // ],
-  },
-  {
-    label: "Laptop",
-    link: "#",
-    // children: [
-    //   { label: "iPad Pro", link: "#" },
-    //   { label: "iPad Air", link: "#" },
-    //   { label: "iPad Mini", link: "#" },
-    // ],
-  },
+  { label: "Phone", link: "#", },
+  { label: "Tablet", link: "#", },
+  { label: "Laptop", link: "#", },
   { label: "Accesstories", link: "#" },
   { label: "Contact Us", link: "#" },
 ];
@@ -51,7 +27,7 @@ const categories = [
 export const NavBar = ({ props }) => {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSearchBox, setFilterSearchBox] = useState("");
-
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const onCategoryChange = (e) => {
@@ -83,7 +59,7 @@ export const NavBar = ({ props }) => {
       <div className="flex items-center justify-between font-semibold">
         <div
           className=" flex items-center gap-3 cursor-pointer"
-          onClick={() => (window.location.href = "/")}>
+          onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" />
           <h1 className="text-3xl">GetTech</h1>
         </div>
@@ -168,67 +144,9 @@ export const Navigation = ({ props }) => {
       <div className="container mx-auto flex items-center justify-between max-md:hidden">
         <div className="flex items-center gap-16 font-semibold transition-all duration-500">
           {navigators.map((nav, index) => (
-            <div key={index} className="relative group">
-              <Link
-                className="hover:underline py-2 flex items-center gap-1"
-                onClick={() => {
-                  try {
-                    const queryParams = new URLSearchParams();
-                    const routeTo = nav.label;
-                    switch (routeTo) {
-                      case "Home":
-                        window.location.href = "/";
-                        break;
-                      case "Shop":
-                        window.location.href = "/shop";
-
-                        break;
-                      case "Accesstories":
-                        window.location.href = "/accessories";
-                        break;
-                      case "Contact Us":
-                        window.location.href = "/contact";
-                        break;
-                      default:
-                        queryParams.append("brand", nav.label);
-                        window.location.href = `/shop?${queryParams.toString()}`;
-
-                        break;
-                    }
-                  } catch (error) {
-                    console.error("Error handling nav click:", error);
-                  }
-                }}>
-                {nav.label} {nav.children && <FaChevronDown />}
-              </Link>
-              {nav.children && (
-                <div className="absolute hidden group-hover:block bg-white text-black rounded shadow-lg z-10">
-                  {nav.children.map((child, childIndex) => (
-                    <Link
-                      key={childIndex}
-                      className="block px-4 py-2 text-nowrap hover:bg-gray-200"
-                      onClick={() => {
-                        try {
-                          const queryParams = new URLSearchParams();
-
-                          // Check if nav.label is "Home" or "Shop"
-                          if (nav.label !== "Shop") {
-                            queryParams.append("brand", nav.label);
-                            queryParams.append("search", child.label);
-                          }
-
-                          // Redirect to the appropriate URL
-                          window.location.href = `/shop?${queryParams.toString()}`;
-                        } catch (error) {
-                          console.error("Error handling child click:", error);
-                        }
-                      }}>
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            <Link key={index} className="relative group hover:underline py-2 flex items-center gap-1" to={nav.link}>
+              {nav.label}
+            </Link>
           ))}
         </div>
       </div>

@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
           //   throw new Error("Invalid token")
           // }
 
-          setUser(JSON.parse(storedUser))
+          // setUser(JSON.parse(storedUser))
         }
       } catch (error) {
         console.error("Authentication error:", error)
@@ -37,6 +37,63 @@ export function AuthProvider({ children }) {
 
     checkLoggedIn()
   }, [])
+
+  // Refresh token function (optional, if you want to implement token refresh logic)
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await fetch(
+        "http://localhost:5000/api/auth/refresh-token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refreshToken }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to refresh token");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: data.userId,
+          name: data.name,
+          mail: data.mail,
+          role: data.role,
+          iat: data.iat,
+        })
+      )
+
+      // Update state
+      setUser({
+        id: data.userId,
+        name: data.name,
+        mail: data.mail,
+        role: data.role,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        phone: data.phone,
+        iat: data.iat,
+      })
+      return true;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      // handleLogout();
+      return false;
+    }
+  };
 
   // Login function
   const login = async (credentials) => {
@@ -53,7 +110,7 @@ export function AuthProvider({ children }) {
       })
 
       const data = await response.json()
-
+      console.log(data)
       if (response.ok) {
         // Store tokens in localStorage
         localStorage.setItem("accessToken", data.accessToken)
@@ -62,7 +119,8 @@ export function AuthProvider({ children }) {
           "user",
           JSON.stringify({
             id: data.userId,
-            username: data.username,
+            name: data.name,
+            mail: data.mail,
             role: data.role,
             iat: data.iat,
           })
@@ -71,8 +129,13 @@ export function AuthProvider({ children }) {
         // Update state
         setUser({
           id: data.userId,
-          username: data.username,
+          name: data.name,
+          mail: data.mail,
           role: data.role,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          phone: data.phone,
           iat: data.iat,
         })
 
@@ -120,6 +183,10 @@ export function AuthProvider({ children }) {
       } else {
         // Xử lý lỗi từ API
         alert(data.message || "Logout failed");
+        const refreshed = await refreshAccessToken()
+        if (refreshed) {
+          await logout();
+        }
       }
     } catch (error) {
       console.error("Error during logout:", error);

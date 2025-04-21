@@ -3,13 +3,18 @@ import { FaSignOutAlt } from "react-icons/fa"
 import { useAuth } from "../store/AuthContext"
 
 export default function Profile() {
-  // User state
-  const [user, setUser] = useState({
-    name: "",
-    email: "",
-  })
+  // Get user and logout function from auth context
+  const { logout, user } = useAuth()
 
-  const { logout } = useAuth() 
+  // Initialize user state with safe fallbacks for potentially missing properties
+  const [userInitial, setUserInitial] = useState({
+    name: user?.name || "",
+    email: user?.mail || user?.email || "",
+    address: user?.address || "",
+    city: user?.city || "",
+    state: user?.state || "",
+    phone: user?.phone || "",
+  })
 
   // Password change form state
   const [passwordForm, setPasswordForm] = useState({
@@ -23,25 +28,27 @@ export default function Profile() {
   const [message, setMessage] = useState({ type: "", text: "" })
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({
-    name: "",
-    email: "",
+    name: userInitial.name,
+    email: userInitial.email,
+    phone: userInitial.phone,
+    address: userInitial.address,
+    city: userInitial.city,
+    state: userInitial.state,
   })
 
-  // Fetch user data on component mount
+  // Update edit form when user data changes
   useEffect(() => {
-    // Simulate fetching user data
-    // In a real app, you would fetch from your API
-    setTimeout(() => {
-      setUser({
-        name: "John Doe",
-        email: "john.doe@example.com",
-      })
+    if (user) {
       setEditForm({
-        name: "John Doe",
-        email: "john.doe@example.com",
+        name: user.name || "",
+        email: user.mail || user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        city: user.city || "",
+        state: user.state || "",
       })
-    }, 500)
-  }, [])
+    }
+  }, [user])
 
   // Handle password form input changes
   const handlePasswordChange = (e) => {
@@ -111,10 +118,14 @@ export default function Profile() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Update user state with new values
-      setUser({
-        ...user,
+      setUserInitial({
+        ...userInitial,
         name: editForm.name,
         email: editForm.email,
+        phone: editForm.phone,
+        address: editForm.address,
+        city: editForm.city,
+        state: editForm.state,
       })
 
       setMessage({ type: "success", text: "Profile updated successfully" })
@@ -133,13 +144,11 @@ export default function Profile() {
         <div className="bg-gradient-to-r from-blue-500 to-slate-600 p-6 sm:p-10">
           <div className="flex flex-col sm:flex-row items-center justify-between">
             <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-white">{user.name}</h1>
-              <p className="text-blue-100">{user.email}</p>
+              <h1 className="text-2xl font-bold text-white">{userInitial.name}</h1>
+              <p className="text-blue-100">{userInitial.email}</p>
             </div>
-            <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left  cursor-pointer"
-              onClick={logout}
-            >
-              <FaSignOutAlt className="text-3xl text-white"/>
+            <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left cursor-pointer" onClick={logout}>
+              <FaSignOutAlt className="text-3xl text-white" />
             </div>
           </div>
         </div>
@@ -247,9 +256,71 @@ export default function Profile() {
                     value={editForm.email}
                     onChange={handleEditChange}
                     readOnly
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                     required
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={editForm.phone}
+                    onChange={handleEditChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="(123) 456-7890"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={editForm.address}
+                    onChange={handleEditChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="123 Main St"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      value={editForm.city}
+                      onChange={handleEditChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="New York"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      id="state"
+                      name="state"
+                      value={editForm.state}
+                      onChange={handleEditChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="NY"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-end">
@@ -293,23 +364,30 @@ export default function Profile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-4 rounded-md">
                     <p className="text-sm text-gray-500">Full Name</p>
-                    <p className="font-medium">{user.name}</p>
+                    <p className="font-medium">{userInitial.name}</p>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-md">
                     <p className="text-sm text-gray-500">Email Address</p>
-                    <p className="font-medium">{user.email}</p>
-                  </div>
-                  {/* <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="text-sm text-gray-500">Member Since</p>
-                    <p className="font-medium">April 2023</p>
+                    <p className="font-medium">{userInitial.email}</p>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="text-sm text-gray-500">Account Status</p>
-                    <p className="font-medium flex items-center">
-                      <span className="h-2 w-2 bg-blue-500 rounded-full mr-2"></span>
-                      Active
+                    <p className="text-sm text-gray-500">Phone Number</p>
+                    <p className="font-medium">{userInitial.phone || "Not provided"}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-sm text-gray-500">Address</p>
+                    <p className="font-medium">
+                      {userInitial.address ? (
+                        <>
+                          {userInitial.address}
+                          {userInitial.city && `, ${userInitial.city}`}
+                          {userInitial.state && `, ${userInitial.state}`}
+                        </>
+                      ) : (
+                        "Not provided"
+                      )}
                     </p>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             )}

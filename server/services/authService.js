@@ -96,12 +96,18 @@ const authenticateUser = async (username, password) => {
     
     // Generate tokens
     const tokens = await generateTokens(user._id.toString());
-    
+    // console.log(user[name])
     return { 
       success: true, 
       // userId: user._id,
-      username: user.username,
+      // username: user.username,
+      name: user.name,
+      email: user.email,
       role: user.role,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      phone: user.phone,
       iat: tokens.iat,
       ...tokens 
     };

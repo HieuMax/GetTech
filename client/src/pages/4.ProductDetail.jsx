@@ -37,6 +37,10 @@ const ProductDetail = () => {
     fetchProduct()
   }, [productId])
 
+  useEffect(() => {
+    console.log("ok")
+  }, [])
+
   const handleAddToCart = () => {
     setIsAdding(true)
 
@@ -192,9 +196,9 @@ const ProductDetail = () => {
               )}
             </button>
 
-            <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+            {/* <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
               <i className="fa-solid fa-share-nodes"></i>
-            </button>
+            </button> */}
           </div>
 
           {/* Features */}

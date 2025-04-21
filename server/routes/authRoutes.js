@@ -49,12 +49,18 @@ router.post('/login', async (req, res) => {
     if (!result.success) {
       return res.status(401).json({ message: result.message });
     }
-    
+    console.log(result);
     // Return tokens and user info
     res.json({
       message: 'Login successful',
       userId: result.userId,
-      username: result.username,
+      // username: result.username,
+      name: result.name,
+      mail: result.email,
+      address: result.address,
+      city: result.city,
+      state: result.state,
+      phone: result.phone,
       role: result.role,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken
