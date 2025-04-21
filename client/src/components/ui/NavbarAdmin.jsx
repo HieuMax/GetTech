@@ -6,7 +6,6 @@ const NavbarAdmin = () => {
   const navigate = useNavigate(); // Hook để chuyển hướng
   const { user, logout } = useAuth(); // Lấy thông tin người dùng từ AuthContext
 
-
   // const handleLogout = async () => {
   //   try {
   //     // Gửi yêu cầu POST đến API logout
@@ -40,13 +39,13 @@ const NavbarAdmin = () => {
 
   if (user && user.role !== "admin") {
     return navigate("/"); // Nếu người dùng không phải là admin, chuyển hướng về trang chính
-  } 
+  }
 
   return (
     <div className="flex items-center py-2 px-[4%] justify-between">
       <div className="flex items-center gap-3 cursor-pointer">
         <img src="/logo.png" alt="Logo" />
-        <div className="flex flex-col">
+        <div onClick={() => navigate("/")} className="flex flex-col">
           <h1 className="text-3xl">GetTech</h1>
           <h1 className="text-base text-gray-500">Admin Panel</h1>
         </div>

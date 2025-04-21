@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ConfirmModal from "./ConfirmModal";
+import { toast } from "react-toastify";
 
 const AddProduct = () => {
   const [imagePreview, setImagePreview] = useState(null);
@@ -34,12 +35,14 @@ const AddProduct = () => {
 
   useEffect(() => {
     if (id) {
+      setIsLoading(true);
       fetch(`http://localhost:5000/api/phone/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setFormData(data);
           setInitialData(data);
           setImagePreview(data.image);
+          setIsLoading(false);
         })
         .catch((err) => console.error("Lỗi tải sản phẩm:", err));
     } else {
@@ -80,7 +83,7 @@ const AddProduct = () => {
     e.preventDefault();
 
     if (!imagePreview) {
-      alert("Vui lòng chọn hình ảnh cho sản phẩm!");
+      toast.warning("Vui lòng chọn hình ảnh cho sản phẩm!");
       return;
     }
 
@@ -89,7 +92,7 @@ const AddProduct = () => {
       JSON.stringify({ ...formData, image: imagePreview }) ===
         JSON.stringify(initialData)
     ) {
-      alert("Chưa có thông tin nào được chỉnh sửa!");
+      toast.warning("Chưa có thông tin nào được chỉnh sửa!");
       return;
     }
     setShowConfirm(true);
@@ -125,6 +128,9 @@ const AddProduct = () => {
         );
         window.scrollTo({ top: 0, behavior: "smooth" });
         setTimeout(() => setSuccessMessage(""), 4000);
+        toast.success(
+          id ? "Cập nhật sản phẩm thành công!" : "Thêm sản phẩm thành công!"
+        );
 
         if (!id) {
           const emptyData = {
@@ -145,11 +151,10 @@ const AddProduct = () => {
           setInitialData(finalData);
         }
       } else {
-        alert(data.message || "Có lỗi xảy ra.");
+        toast.warning(data.message || "Có lỗi xảy ra.");
       }
     } catch (error) {
-      console.error("Lỗi khi submit sản phẩm:", error);
-      alert("Lỗi máy chủ khi xử lý yêu cầu.");
+      toast.error("Lỗi khi submit sản phẩm:");
     } finally {
       setIsLoading(false); // Tắt trạng thái loading
     }
@@ -163,7 +168,7 @@ const AddProduct = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) {
-      alert("Vui lòng chọn đúng định dạng ảnh!");
+      toast.warning("Vui lòng chọn đúng định dạng ảnh!");
       return;
     }
 
@@ -179,6 +184,33 @@ const AddProduct = () => {
 
   return (
     <>
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center">
+            <svg
+              className="animate-spin h-12 w-12 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+      )}
       <div className="max-w-lg mx-auto p-4 border rounded-lg shadow relative">
         {successMessage && (
           <div className="absolute top-0 left-0 right-0 bg-green-500 text-white px-4 py-2 flex justify-between items-center rounded-t-lg">

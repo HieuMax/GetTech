@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  Routes,
-  Route,
-} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 // import './App.css';
 import Login from "./components/Login";
@@ -13,6 +10,8 @@ import Signup from "./components/SignUp";
 import Admin from "./pages/2.Admin";
 import AddProduct from "./components/AddProduct";
 import ProductListAdmin from "./components/ProductListAdmin";
+import OrderAdmin from "./components/OrderAdmin";
+import OrderDetailAdmin from "./components/OrderDetailAdmin";
 import Profile from "./components/Profile";
 import { AuthProvider } from "./store/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,8 +20,6 @@ import ProductDetail from "./pages/4.ProductDetail";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
-
-
   // useEffect(() => {
   //   const checkAuthAndFetchData = async () => {
   //     const accessToken = localStorage.getItem("accessToken");
@@ -190,7 +187,6 @@ function App() {
     <AuthProvider>
       <ScrollToTop />
       <Routes>
-
         {/* User */}
         <Route element={<RootLayout />}>
           <Route path="/" element={<HomePage />} />
@@ -198,7 +194,7 @@ function App() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/shop/:productId" element={<ProductDetail />} />
-          <Route path="/login" element={<Login/>} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Signup />} />
           <Route
             path="/profile"
@@ -217,11 +213,13 @@ function App() {
             <ProtectedRoute>
               <Admin />
             </ProtectedRoute>
-        }
+          }
         >
           <Route path="/admin/add" element={<AddProduct />} />
           <Route path="/admin/list" element={<ProductListAdmin />} />
           <Route path="/admin/edit/:id" element={<AddProduct />} />
+          <Route path="/admin/orders" element={<OrderAdmin />} />
+          <Route path="/admin/orders/:id" element={<OrderDetailAdmin />} />
         </Route>
       </Routes>
     </AuthProvider>
