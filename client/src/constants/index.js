@@ -87,50 +87,50 @@ export const reviews = [
 
 
 export const footerLinks = [
-    {
-        title: "Products",
-        links: [
-            { name: "Air Force 1", link: "/" },
-            { name: "Air Max 1", link: "/" },
-            { name: "Air Jordan 1", link: "/" },
-            { name: "Air Force 2", link: "/" },
-            { name: "Nike Waffle Racer", link: "/" },
-            { name: "Nike Cortez", link: "/" },
-        ],
-    },
-    {
-        title: "Company",
-        links: [
-            { name: "About us", link: "/" },
-            { name: "FAQs", link: "/" },
-            { name: "How it works", link: "/" },
-            { name: "Privacy policy", link: "/" },
-            { name: "Payment policy", link: "/" },
-            { name: "Nike Cortez", link: "/" },
 
-        ],
-    },
-    {
-        title: "Social",
-        links: [
-            { name: "About us", link: "/" },
-            { name: "FAQs", link: "/" },
-            { name: "How it works", link: "/" },
-            { name: "Privacy policy", link: "/" },
-            { name: "Payment policy", link: "/" },
-            { name: "Nike Cortez", link: "/" },
+    // {
+    //     title: "Company",
+    //     links: [
+    //         { name: "About us", link: "/" },
+    //         { name: "FAQs", link: "/" },
+    //         { name: "How it works", link: "/" },
+    //         { name: "Privacy policy", link: "/" },
+    //         { name: "Payment policy", link: "/" },
+    //         { name: "Nike Cortez", link: "/" },
 
+    //     ],
+    // },
+    // {
+    //     title: "Social",
+    //     links: [
+    //         { name: "About us", link: "/" },
+    //         { name: "FAQs", link: "/" },
+    //         { name: "How it works", link: "/" },
+    //         { name: "Privacy policy", link: "/" },
+    //         { name: "Payment policy", link: "/" },
+    //         { name: "Nike Cortez", link: "/" },
+
+    //     ],
+    // },
+    {
+        title: "Quick links",
+        links: [
+            { name: "Home", link: "/" },
+            { name: "Shop", link: "/shop" },
+            { name: "Contact us", link: "/contact-us" },
+            // { name: "Air Force 2", link: "/" },
+            // { name: "Nike Waffle Racer", link: "/" },
+            // { name: "Nike Cortez", link: "/" },
         ],
     },
     {
-        title: "Références",
+        title: "Customer Service",
         links: [
-            { name: "customer@nike.com", link: "mailto:customer@nike.com" },
-            { name: "+92554862354", link: "tel:+92554862354" },
-            { name: "Nike Cortez", link: "/" },
-            { name: "Nike Cortez", link: "/" },
-            { name: "Nike Cortez", link: "/" },
-            { name: "Nike Cortez", link: "/" },
+            { name: "trunghieuma22@gmail.com", link: "mailto:trunghieuma22@gmail.com" },
+            { name: "+84979797979", link: "tel:+84979797979" },
+            { name: "Ma Trung Hieu", link: "/" },
+            { name: "Bui Tan Hieu", link: "/" },
+            { name: "Tran Hoang Phuc", link: "/" },
         ],
     },
 

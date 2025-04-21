@@ -91,17 +91,40 @@ export function AuthProvider({ children }) {
   }
 
   // Logout function
-  const logout = () => {
+  const logout = async () => {
     // Clear localStorage
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
 
-    // Clear state
-    setUser(null)
+    try {
+      // Gửi yêu cầu POST đến API logout
+      const response = await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Lấy token từ localStorage
+        },
+      });
 
-    // Redirect to login
-    navigate("/login")
+      const data = await response.json();
+
+      if (response.ok) {
+        // Xóa token khỏi localStorage
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken"); // Nếu bạn cũng lưu refresh token
+        localStorage.removeItem("user")
+
+        // Clear state
+        setUser(null)
+        // Chuyển hướng đến trang đăng nhập
+        navigate("/");
+        alert(data.message); // Hiển thị thông báo đăng xuất thành công
+      } else {
+        // Xử lý lỗi từ API
+        alert(data.message || "Logout failed");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      alert("An error occurred during logout");
+    }
   }
 
   // Get user profile data

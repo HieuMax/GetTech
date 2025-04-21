@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react"
 import { useCart } from "../store/CartContext"
+import { useNavigate } from "react-router-dom"
 
 export default function Cart() {
   const { cartItems, removeFromCart, updateQuantity, clearCart, isCartOpen, toggleCart, totalPrice } = useCart()
 
   const cartRef = useRef(null)
+  const navigate = useNavigate()
 
   // Close cart when clicking outside
   useEffect(() => {
@@ -32,6 +34,11 @@ export default function Cart() {
       document.body.style.overflow = "auto"
     }
   }, [isCartOpen])
+
+  const handleCheckout = () => {
+    toggleCart() // Close the cart
+    navigate("/checkout") // Navigate to checkout page
+  }
 
   if (!isCartOpen) return null
 
@@ -160,7 +167,9 @@ export default function Cart() {
               </div>
 
               <div className="space-y-2">
-                <button className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                <button className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  onClick={handleCheckout}
+                >
                   Checkout
                 </button>
 

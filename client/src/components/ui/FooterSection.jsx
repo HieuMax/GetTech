@@ -17,13 +17,12 @@ const FooterSection = () => {
             <p className="tracking-wider text-xl leading-relaxed">GetTech</p>
           </a>
           <p className='mt-6 text-base leading-7 font-montserrat sm:max-w-sm text-white'>
-            Get shoes ready for the new term at your nearest Nike store. Find
-            Your perfect Size In Store. Get Rewards
+            Your trusted destination for the latest phones, laptops, and smart devices.
           </p>
           
         </div>
 
-        <div className='flex flex-1 justify-between max-md:justify-evenly lg:gap-10 gap-20 max-md:gap-12 flex-wrap'>
+        <div className='flex flex-1 justify-end max-md:justify-evenly lg:gap-10 gap-20 max-md:gap-12 flex-wrap'>
           {footerLinks.map((section, index) => (
             <div key={index} className="w-[130px]">
               <h4 className='font-montserrat text-base leading-normal font-medium mb-6 text-[#98A2B3]'>
@@ -45,7 +44,7 @@ const FooterSection = () => {
       </div>
 
       <div className='flex justify-between text-white-400 mt-16 max-sm:flex-col max-sm:items-center border-t border-[#475467]'>
-        <div className='flex flex-1 justify-start items-center gap-2 font-montserrat cursor-pointer py-10'>
+        <div className='flex flex-1 justify-start items-center gap-2 font-montserrat py-10'>
           <img
             src={copyrightSign}
             alt="{copyrightSign}"
@@ -53,7 +52,7 @@ const FooterSection = () => {
             height={20}
             className='rounded-full m-0'
           />
-          <p className="text-[#98A2B3]">2022 GetTech. All rights reserved.</p>
+          <p className="text-[#98A2B3]">2025 GetTech. All rights reserved.</p>
         </div>
         <div className='flex items-center gap-5'>
             {socialMedia.map((icon, index) => (

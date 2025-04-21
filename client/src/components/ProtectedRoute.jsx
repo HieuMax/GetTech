@@ -2,7 +2,7 @@ import { useAuth } from "../store/AuthContext"
 import { Navigate } from "react-router-dom"
 
 export default function ProtectedRoute({ children }) {
-    const { isAuthenticated, loading } = useAuth()
+    const { isAuthenticated, loading, user } = useAuth()
   
     // Show loading state while checking authentication
     if (loading) {
@@ -19,6 +19,7 @@ export default function ProtectedRoute({ children }) {
     }
   
     // Render children if authenticated
+    
     return children
   }
   

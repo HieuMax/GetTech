@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react"
+import { FaSignOutAlt } from "react-icons/fa"
+import { useAuth } from "../store/AuthContext"
 
 export default function Profile() {
   // User state
@@ -6,6 +8,8 @@ export default function Profile() {
     name: "",
     email: "",
   })
+
+  const { logout } = useAuth() 
 
   // Password change form state
   const [passwordForm, setPasswordForm] = useState({
@@ -127,10 +131,15 @@ export default function Profile() {
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         {/* Profile Header */}
         <div className="bg-gradient-to-r from-blue-500 to-slate-600 p-6 sm:p-10">
-          <div className="flex flex-col sm:flex-row items-center">
+          <div className="flex flex-col sm:flex-row items-center justify-between">
             <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
               <h1 className="text-2xl font-bold text-white">{user.name}</h1>
               <p className="text-blue-100">{user.email}</p>
+            </div>
+            <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left  cursor-pointer"
+              onClick={logout}
+            >
+              <FaSignOutAlt className="text-3xl text-white"/>
             </div>
           </div>
         </div>
@@ -237,6 +246,7 @@ export default function Profile() {
                     name="email"
                     value={editForm.email}
                     onChange={handleEditChange}
+                    readOnly
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   />

@@ -1,48 +1,29 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../store/AuthContext"
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
   })
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      })
+      const result = await login(credentials)
 
-      const data = await response.json()
-
-      if (response.ok) {
-        // Store tokens in localStorage
-        localStorage.setItem("accessToken", data.accessToken)
-        localStorage.setItem("refreshToken", data.refreshToken)
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: data.userId,
-            username: data.username,
-            role: data.role,
-            iat: data.iat,
-          }),
-        )
-
-        // Call the onLogin callback with user data
-        onLogin(data)
+      if (result.success) {
+        // Redirect to profile or dashboard
+        navigate("/")
       } else {
-        setError(data.message || "Login failed")
+        setError(result.error)
       }
     } catch (error) {
       setError("Error connecting to server")

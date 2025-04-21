@@ -48,44 +48,118 @@ app.get('/', authenticate, async (req, res) => {
     }
 });
 
-const phoneSchema = new mongoose.Schema(
-  {
-    ID: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    image: {
-      type: String,
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    brand: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      default: "",
-    },
-    rating: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 5,
-    },
-  },
-  { timestamps: true }
-);
+// const phoneSchema = new mongoose.Schema(
+//   {
+//     ID: {
+//       type: String,
+//       required: true,
+//       unique: true,
+//     },
+//     image: {
+//       type: String,
+//       required: true,
+//     },
+//     name: {
+//       type: String,
+//       required: true,
+//     },
+//     price: {
+//       type: Number,
+//       required: true,
+//     },
+//     brand: {
+//       type: String,
+//       required: true,
+//     },
+//     description: {
+//       type: String,
+//       default: "",
+//     },
+//     rating: {
+//       type: Number,
+//       default: 0,
+//       min: 0,
+//       max: 5,
+//     },
+//   },
+//   { timestamps: true }
+// );
 
-const Phone = mongoose.model("Phone", phoneSchema);
+// const Phone = mongoose.model("Phone", phoneSchema);
+
+/*
+@
+@ GET 
+@
+*/
+app.get("/api/products/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      // console.log(id);
+      const _p = await product.findOne({ id: id });
+      // console.log(_p)
+      if (!_p) {
+        return res.status(404).json({ message: "Sản phẩm không tồn tại!" });
+      }
+      // console.log(_p);
+
+      // Get suggest product
+      const name = _p.name;
+      const brand = _p.brand;
+
+      const namePrefix = name ? name.split(" ")[0] : "";
+      const query = {
+        $or: [],
+      };
+      if (namePrefix) {
+        query.$or.push({ name: { $regex: "^" + namePrefix, $options: "i" } });
+      }
+
+      if (brand) {
+        query.$or.push({ brand: brand });
+      }
+  
+      const products = await product.find(query);
+      // res.json(products);
+      res.json({ dataProduct: _p, dataSuggest: products });
+    } catch (error) {
+      console.error("Lỗi khi lấy sản phẩm:", error);
+      res.status(500).json({ message: "Lỗi máy chủ khi lấy sản phẩm" });
+    }
+  }
+)
+
+app.get("/api/products/search", async (req, res) => {
+  try {
+    const { name, brand } = req.query;
+
+    // Tách prefix từ name (giả sử bạn chỉ cần từ đầu tiên làm prefix)
+    const namePrefix = name ? name.split(" ")[0] : "";
+
+    const query = {
+      $or: [],
+    };
+
+    if (namePrefix) {
+      query.$or.push({ name: { $regex: "^" + namePrefix, $options: "i" } });
+    }
+
+    if (brand) {
+      query.$or.push({ brand: brand });
+    }
+
+    if (query.$or.length === 0) {
+      return res.status(400).json({ message: "Vui lòng cung cấp name hoặc brand để tìm kiếm." });
+    }
+
+    const products = await product.find(query);
+    res.json(products);
+  } catch (error) {
+    console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+    res.status(500).json({ message: "Lỗi máy chủ khi tìm kiếm sản phẩm" });
+  }
+});
+
 
 // Hàm API: GET tất cả sản phẩm
 app.get("/api/phones", async (req, res) => {

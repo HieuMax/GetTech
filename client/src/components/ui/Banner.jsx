@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Banner = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const navigate = useNavigate();
+
   const item = [
     {
       title: "Refurbished iPhones",
@@ -22,7 +25,7 @@ export const Banner = () => {
       <div className="relative mt-20 ml-12 max-w-[443px]">
         {item[currentIndex].isSpecial && (
           <div className="text-xs text-white bg-[#12B76A] py-[2px] px-2 w-fit rounded-2xl absolute">
-            Special offers
+            New product
           </div>
         )}
         <h2 className="text-[#1D2939] pt-14 text-5xl font-semibold">
@@ -31,11 +34,13 @@ export const Banner = () => {
         <p className="text-xl py-6 text-[#667085]">
           {item[currentIndex].description}
         </p>
-        <button className="py-[10px]  px-[18px] bg-[#1570EF] text-base  text-white rounded-lg">
+        <button className="py-[10px]  px-[18px] bg-[#1570EF] text-base  text-white rounded-lg"
+          onClick={() => navigate("/shop")}
+        >
           Shop now
         </button>
         {/* vi tri nut  tron */}
-        <div className="flex space-x-2 mt-20">
+        {/* <div className="flex space-x-2 mt-20">
           {item.map((_, index) => (
             <button
               key={index}
@@ -44,7 +49,7 @@ export const Banner = () => {
                 currentIndex === index ? "bg-[#667085]" : "bg-white"
               }`}></button>
           ))}
-        </div>
+        </div> */}
         {/* end */}
       </div>
       <img className="mt-20 mr-12" src="/banner.png" alt="" />

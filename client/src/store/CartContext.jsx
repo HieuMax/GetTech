@@ -47,7 +47,7 @@ export function CartProvider({ children }) {
         return updatedItems
       } else {
         // Item doesn't exist, add new item
-        return [...prevItems, { ...product, quantity: 1 }]
+        return [...prevItems, { ...product, quantity: product.quantity || 1 }]
       }
     })
 

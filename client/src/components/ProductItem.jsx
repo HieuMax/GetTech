@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { useCart } from "../store/CartContext";
+import { useNavigate } from "react-router-dom"
 
 export const ProductItem = ({ product }) => {
   const { addToCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
+  const navigate = useNavigate()
 
   const handleAddToCart = () => {
     setIsAdding(true);
@@ -51,7 +53,11 @@ export const ProductItem = ({ product }) => {
   };
 
   return (
-    <div className="w-[280px] max-lg:w-[240px] max-md:w-[220px] max-mb_L:w-[280px] px-[13px] h-[480px] max-lg:h-[450px] rounded-2xl mb-6 flex flex-col cursor-pointer shadow-lg">
+    <div className="w-[280px] max-lg:w-[240px] max-md:w-[220px] max-mb_L:w-[280px] px-[13px] h-[480px] max-lg:h-[450px] rounded-2xl mb-6 flex flex-col cursor-pointer shadow-lg"
+      onClick={() => {
+        navigate(`/shop/${product.id}`)
+      }}
+    >
       {/* HINH ANH  */}
       <div className="relative h-[240px] max-lg:h-[200px]">
         <img
@@ -68,7 +74,7 @@ export const ProductItem = ({ product }) => {
             <h3 className="text-lg font-semibold break-words">
               {product.name}
             </h3>
-            <i class="fa-regular pt-2 fa-heart text-gray-500 text-lg cursor-pointer hover:text-red-500"></i>
+            {/* <i class="fa-regular pt-2 fa-heart text-gray-500 text-lg cursor-pointer hover:text-red-500"></i> */}
           </div>
           <p className="text-gray-500 text-sm break-words">
             {product.description}

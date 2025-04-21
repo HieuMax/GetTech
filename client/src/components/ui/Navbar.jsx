@@ -4,6 +4,8 @@ import { IoListOutline } from "react-icons/io5";
 import { CgClose } from "react-icons/cg";
 import { FaChevronDown } from "react-icons/fa"; // Import down arrow icon from FontAwesome
 import { Link } from "react-router-dom";
+import CartIcon from "../CartIcon";
+import { useAuth } from "../../store/AuthContext";
 
 const navigators = [
   { label: "Home", link: "/" },
@@ -11,29 +13,29 @@ const navigators = [
   {
     label: "Phone",
     link: "#",
-    children: [
-      { label: "iPhone 12", link: "#" },
-      { label: "iPhone 13", link: "#" },
-      { label: "iPhone 14", link: "#" },
-    ],
+    // children: [
+    //   { label: "iPhone 12", link: "#" },
+    //   { label: "iPhone 13", link: "#" },
+    //   { label: "iPhone 14", link: "#" },
+    // ],
   },
   {
     label: "Tablet",
     link: "#",
-    children: [
-      { label: "Galaxy S21", link: "#" },
-      { label: "Galaxy S22", link: "#" },
-      { label: "Galaxy S23", link: "#" },
-    ],
+    // children: [
+    //   { label: "Galaxy S21", link: "#" },
+    //   { label: "Galaxy S22", link: "#" },
+    //   { label: "Galaxy S23", link: "#" },
+    // ],
   },
   {
     label: "Laptop",
     link: "#",
-    children: [
-      { label: "iPad Pro", link: "#" },
-      { label: "iPad Air", link: "#" },
-      { label: "iPad Mini", link: "#" },
-    ],
+    // children: [
+    //   { label: "iPad Pro", link: "#" },
+    //   { label: "iPad Air", link: "#" },
+    //   { label: "iPad Mini", link: "#" },
+    // ],
   },
   { label: "Accesstories", link: "#" },
   { label: "Contact Us", link: "#" },
@@ -49,6 +51,8 @@ const categories = [
 export const NavBar = ({ props }) => {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSearchBox, setFilterSearchBox] = useState("");
+
+  const { user } = useAuth();
 
   const onCategoryChange = (e) => {
     const selectedCategory = e.target.value;
@@ -112,12 +116,15 @@ export const NavBar = ({ props }) => {
                     <FaHeart className="text-xl" />
                 </div> */}
           <Link
-            to={"/login"}
+            to={`${user 
+                  ? user.role === "admin" ? "/admin" : "/profile"
+                  : "/login"}`}
             className="p-2 bg-gray-200 rounded cursor-pointer">
             <FaUser className="text-xl" />
           </Link>
           <div className="p-2 bg-gray-200 rounded cursor-pointer">
-            <FaShoppingCart className="text-xl" />
+            {/* <FaShoppingCart className="text-xl" /> */}
+            <CartIcon />
           </div>
           <div
             className="p-2 bg-gray-200 rounded cursor-pointer hidden max-md:flex z-100"
