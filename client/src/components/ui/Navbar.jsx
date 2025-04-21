@@ -10,50 +10,19 @@ import { useAuth } from "../../store/AuthContext";
 const navigators = [
   { label: "Home", link: "/" },
   { label: "Shop", link: "/shop" },
-  { label: "Phone", link: "#", },
-  { label: "Tablet", link: "#", },
-  { label: "Laptop", link: "#", },
-  { label: "Accesstories", link: "#" },
+  // { label: "Phone", link: `/shop?cate=phone`, },
+  // { label: "Tablet", link: `/shop?cate=tablet`, },
+  // { label: "Laptop", link: `/shop?cate=laptop`, },
+  // { label: "Accesstories", link: `/shop?cate=accesstories` },
   { label: "Contact Us", link: "#" },
-];
-const categories = [
-  "All Categories",
-  "Phone",
-  "Laptop",
-  "Tablet",
-  "Accessories",
 ];
 
 export const NavBar = ({ props }) => {
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterSearchBox, setFilterSearchBox] = useState("");
+  // const [filterCategory, setFilterCategory] = useState("");
+  // const [filterSearchBox, setFilterSearchBox] = useState("");
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const onCategoryChange = (e) => {
-    const selectedCategory = e.target.value;
-    setFilterCategory(selectedCategory);
-    // onFilterSubmit(e);
-  };
-  const onSearch = (e) => {
-    e.preventDefault();
-    const searchValue = e.target.value;
-    setFilterSearchBox(searchValue);
-  };
-
-  const onFilterSubmit = (e) => {
-    e.preventDefault();
-    const queryParams = new URLSearchParams();
-    if (filterCategory && filterCategory !== "All Categories") {
-      queryParams.append("brand", filterCategory);
-    }
-    if (filterSearchBox) {
-      queryParams.append("search", filterSearchBox);
-    }
-    window.location.href = `/shop?${queryParams.toString()}`;
-  };
-
-  //  console.log(props)
   return (
     <div className="my-5 flex flex-col gap-5">
       <div className="flex items-center justify-between font-semibold">
@@ -63,38 +32,12 @@ export const NavBar = ({ props }) => {
           <img src="/logo.png" alt="Logo" />
           <h1 className="text-3xl">GetTech</h1>
         </div>
-        <div className="flex-grow mx-5 flex items-center gap-0 border border-gray-300 rounded max-md:hidden">
-          <select
-            onChange={onCategoryChange}
-            value={filterCategory}
-            className="p-2 border-r border-gray-300 rounded-l">
-            {categories.map((item) => {
-              return (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              );
-            })}
-          </select>
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full p-2 rounded-r"
-            onChange={onSearch}
-            value={filterSearchBox}
-          />
-          <button onClick={onFilterSubmit} className="p-2">
-            <FaSearch className="text-xl" />
-          </button>
-        </div>
+
         <div className="flex items-center gap-3">
-          {/* <div className="p-2 bg-gray-200 rounded cursor-pointer">
-                    <FaHeart className="text-xl" />
-                </div> */}
           <Link
-            to={`${user 
-                  ? user.role === "admin" ? "/admin" : "/profile"
-                  : "/login"}`}
+            to={`${
+              user ? (user.role === "admin" ? "/admin" : "/profile") : "/login"
+            }`}
             className="p-2 bg-gray-200 rounded cursor-pointer">
             <FaUser className="text-xl" />
           </Link>
@@ -108,30 +51,6 @@ export const NavBar = ({ props }) => {
             <IoListOutline className="text-xl" />
           </div>
         </div>
-      </div>
-      <div className="flex-grow mx-5 items-center gap-0 border border-gray-300 rounded hidden max-md:flex">
-        <select
-          onChange={onSearch}
-          value={filterSearchBox}
-          className="p-2 border-r border-gray-300 rounded-l">
-          {categories.map((item) => {
-            return (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            );
-          })}
-        </select>
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full p-2 rounded-r"
-          onChange={onSearch}
-          value={filterSearchBox}
-        />
-        <button onClick={onFilterSubmit} className="p-2">
-          <FaSearch className="text-xl" />
-        </button>
       </div>
     </div>
   );
@@ -176,18 +95,6 @@ export const Navigation = ({ props }) => {
                 className={`hover:underline py-2 flex items-center gap-1 `}>
                 {nav.label} {nav.children && <FaChevronDown />}
               </a>
-              {nav.children && (
-                <div className="absolute -left-3 hidden group-hover:block bg-white text-black rounded shadow-lg z-10">
-                  {nav.children.map((child, childIndex) => (
-                    <a
-                      key={childIndex}
-                      href={child.link}
-                      className="block px-4 py-2 text-nowrap hover:bg-gray-200">
-                      {child.label}
-                    </a>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
         </div>

@@ -1,85 +1,117 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { ProductList } from "../components/ProductList";
-import { useCart } from '../store/CartContext';
-import { useAuth } from '../store/AuthContext';
-import { FaSearch, FaFilter } from 'react-icons/fa';
+"use client"
+
+import { useEffect, useState, useMemo } from "react"
+import { ProductList } from "../components/ProductList"
+import { FaSearch, FaFilter } from "react-icons/fa"
+
+// Category mapping for display names
+const CATEGORY_MAP = {
+  MOBL: "Phones",
+  LAPT: "Laptops",
+  TABL: "Tablets",
+  ACCE: "Accessories",
+}
 
 export function Shop() {
-  const { addToCart } = useCart();
-  const { user } = useAuth();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [brandFilter, setBrandFilter] = useState('');
-  const [priceFilter, setPriceFilter] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const itemsPerPage = 8;
-  const [visibleItems, setVisibleItems] = useState(itemsPerPage);
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [brandFilter, setBrandFilter] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState("")
+  const [priceFilter, setPriceFilter] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
+  const itemsPerPage = 8
+  const [visibleItems, setVisibleItems] = useState(itemsPerPage)
+
+  // Extract category from product ID
+  const getProductCategory = (productId) => {
+    if (!productId || productId.length < 8) return null
+
+    // Extract the 4 characters after "PROD"
+    const categoryCode = productId.substring(4, 8)
+    return categoryCode
+  }
+
+  // Get all categories from products
+  const categories = useMemo(() => {
+    const categorySet = new Set()
+
+    products.forEach((product) => {
+      const category = getProductCategory(product.id)
+      if (category && CATEGORY_MAP[category]) {
+        categorySet.add(category)
+      }
+    })
+
+    return Array.from(categorySet)
+  }, [products])
 
   // Filter products using useMemo to prevent unnecessary recalculations
   const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesBrand = !brandFilter || product.brand === brandFilter;
-      const matchesPrice = !priceFilter || (
-        priceFilter === 'low' && product.price < 1000 ||
-        priceFilter === 'medium' && product.price >= 1000 && product.price < 2000 ||
-        priceFilter === 'high' && product.price >= 2000
-      );
-      return matchesSearch && matchesBrand && matchesPrice;
-    });
-  }, [products, searchQuery, brandFilter, priceFilter]);
+    return products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesBrand = !brandFilter || product.brand === brandFilter
+
+      // Category filtering
+      const productCategory = getProductCategory(product.id)
+      const matchesCategory = !categoryFilter || productCategory === categoryFilter
+
+      const matchesPrice =
+        !priceFilter ||
+        (priceFilter === "low" && product.price < 1000) ||
+        (priceFilter === "medium" && product.price >= 1000 && product.price < 2000) ||
+        (priceFilter === "high" && product.price >= 2000)
+
+      return matchesSearch && matchesBrand && matchesCategory && matchesPrice
+    })
+  }, [products, searchQuery, brandFilter, categoryFilter, priceFilter])
 
   // Get unique brands
-  const brands = useMemo(() => [...new Set(products.map(product => product.brand))], [products]);
+  const brands = useMemo(() => [...new Set(products.map((product) => product.brand))], [products])
 
   // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/phones');
+        const response = await fetch("http://localhost:5000/api/phones")
         if (!response.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error("Failed to fetch products")
         }
-        const data = await response.json();
-        setProducts(data);
+        const data = await response.json()
+        setProducts(data)
       } catch (err) {
-        setError(err.message);
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchProducts();
-  }, []);
+    fetchProducts()
+  }, [])
 
   // Handle scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.scrollHeight - 130
-      ) {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.scrollHeight - 130) {
         setVisibleItems((prev) => {
-          const newValue = Math.min(prev + itemsPerPage, filteredProducts.length);
-          console.log('Current visible items:', newValue);
-          return newValue;
-        });
+          const newValue = Math.min(prev + itemsPerPage, filteredProducts.length)
+          return newValue
+        })
       }
-    };
+    }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [filteredProducts.length, itemsPerPage]);
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [filteredProducts.length, itemsPerPage])
 
   // Reset visible items when filters change
   useEffect(() => {
-    setVisibleItems(itemsPerPage);
-  }, [brandFilter, priceFilter, searchQuery, itemsPerPage]);
+    setVisibleItems(itemsPerPage)
+  }, [brandFilter, categoryFilter, priceFilter, searchQuery, itemsPerPage])
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
+  if (loading) return <div className="text-center py-8">Loading...</div>
+  if (error) return <div className="text-center py-8 text-red-500">{error}</div>
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -108,7 +140,25 @@ export function Shop() {
         {/* Filter Panel */}
         {showFilters && (
           <div className="mt-4 p-4 bg-white rounded-lg shadow-md">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Category Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {CATEGORY_MAP[category] || category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Brand Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Brand</label>
                 <select
@@ -117,11 +167,15 @@ export function Shop() {
                   className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Brands</option>
-                  {brands.map(brand => (
-                    <option key={brand} value={brand}>{brand}</option>
+                  {brands.map((brand) => (
+                    <option key={brand} value={brand}>
+                      {brand}
+                    </option>
                   ))}
                 </select>
               </div>
+
+              {/* Price Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
                 <select
@@ -136,14 +190,42 @@ export function Shop() {
                 </select>
               </div>
             </div>
+
+            {/* Filter Stats */}
+            <div className="mt-4 text-sm text-gray-600">
+              Showing {filteredProducts.length} of {products.length} products
+              {categoryFilter && <span> • Category: {CATEGORY_MAP[categoryFilter]}</span>}
+              {brandFilter && <span> • Brand: {brandFilter}</span>}
+              {priceFilter && (
+                <span>
+                  {" "}
+                  • Price:{" "}
+                  {priceFilter === "low" ? "Under $1000" : priceFilter === "medium" ? "$1000 - $2000" : "Over $2000"}
+                </span>
+              )}
+            </div>
+
+            {/* Clear Filters Button */}
+            {(categoryFilter || brandFilter || priceFilter || searchQuery) && (
+              <button
+                onClick={() => {
+                  setCategoryFilter("")
+                  setBrandFilter("")
+                  setPriceFilter("")
+                  setSearchQuery("")
+                }}
+                className="mt-4 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+              >
+                Clear All Filters
+              </button>
+            )}
           </div>
         )}
       </div>
 
       {/* Products Grid */}
-      {error && <div className="text-center text-red-500">Error: {error}</div>}
-      {products.length === 0 ? (
-        <div className="text-center py-5">No products available</div>
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-5">No products match your filters. Try adjusting your criteria.</div>
       ) : (
         <ProductList isHome={false} productList={filteredProducts.slice(0, visibleItems)} />
       )}
@@ -156,5 +238,5 @@ export function Shop() {
         </div>
       )}
     </div>
-  );
+  )
 }
