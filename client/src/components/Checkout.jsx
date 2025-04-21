@@ -44,7 +44,7 @@ const OrderSummary = ({ cartItems, totalPrice, showDetails = true }) => {
   const grandTotal = totalPrice + shipping + tax
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg">
+    <div className={`${cartItems.length > 0 ? "block" : "hidden"} bg-gray-50 p-4 rounded-lg`}>
       <h3 className="font-medium text-lg mb-4">Đơn hàng của bạn</h3>
 
       {showDetails && cartItems.length > 0 && (
@@ -286,28 +286,53 @@ export default function Checkout() {
 
   // Handle order submission
   const handlePlaceOrder = async () => {
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
 
     try {
-      // Simulate API call to place order
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Prepare order data
+      const orderData = {
+        cartItems,
+        shippingInfo,
+        total: totalPrice
+      };
 
-      // Generate a random order ID
-      const randomOrderId = "ORD-" + Math.random().toString(36).substring(2, 10).toUpperCase()
-      setOrderId(randomOrderId)
+      // Get access token if available
+      const accessToken = localStorage.getItem('accessToken');
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+
+      // Add authorization header if user is logged in
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      // Create order
+      const response = await fetch('http://localhost:5000/api/orders/create', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(orderData)
+      });
+      console.log(orderData)
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const data = await response.json();
+      setOrderId(data.orderId);
 
       // Clear cart after successful order
-      clearCart()
+      clearCart();
 
       // Set order as complete
-      setOrderComplete(true)
+      setOrderComplete(true);
     } catch (error) {
-      setError("Failed to place your order. Please try again.")
+      setError(error.message || "Failed to place your order. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Handle continue shopping
   const handleContinueShopping = () => {
@@ -660,7 +685,7 @@ export default function Checkout() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className={`${orderComplete ? "" : "grid grid-cols-1 lg:grid-cols-3 gap-8"} `}>
         <div className="lg:col-span-2">{renderStepContent()}</div>
 
         <div>

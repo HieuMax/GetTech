@@ -68,74 +68,115 @@ export default function Profile() {
     }))
   }
 
+  // Handle profile edit form submission
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setMessage({ type: "", text: "" });
+    setLoading(true);
+
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch('http://localhost:5000/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          name: editForm.name,
+          phone: editForm.phone,
+          address: editForm.address,
+          city: editForm.city,
+          state: editForm.state
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      const data = await response.json();
+      
+      // Update user state with new values
+      setUserInitial({
+        ...userInitial,
+        name: data.user.name,
+        email: data.user.email,
+        phone: data.user.phone,
+        address: data.user.address,
+        city: data.user.city,
+        state: data.user.state,
+      });
+
+      setMessage({ type: "success", text: data.message });
+      setIsEditing(false);
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle password form submission
   const handlePasswordSubmit = async (e) => {
-    e.preventDefault()
-    setMessage({ type: "", text: "" })
+    e.preventDefault();
+    setMessage({ type: "", text: "" });
 
     // Validate passwords match
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setMessage({ type: "error", text: "New passwords do not match" })
-      return
+      setMessage({ type: "error", text: "New passwords do not match" });
+      return;
     }
 
     // Validate password length
     if (passwordForm.newPassword.length < 8) {
-      setMessage({ type: "error", text: "Password must be at least 8 characters long" })
-      return
+      setMessage({ type: "error", text: "Password must be at least 8 characters long" });
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      // Simulate API call
-      // In a real app, you would call your API endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        throw new Error('Not authenticated');
+      }
 
-      // Success
-      setMessage({ type: "success", text: "Password updated successfully" })
+      const response = await fetch('http://localhost:5000/api/users/password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update password');
+      }
+
+      const data = await response.json();
+      setMessage({ type: "success", text: data.message });
       setPasswordForm({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
-      })
+      });
     } catch (error) {
-      setMessage({ type: "error", text: "Failed to update password. Please try again." })
+      setMessage({ type: "error", text: error.message });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-  // Handle profile edit form submission
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault()
-    setMessage({ type: "", text: "" })
-    setLoading(true)
-
-    try {
-      // Simulate API call
-      // In a real app, you would call your API endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Update user state with new values
-      setUserInitial({
-        ...userInitial,
-        name: editForm.name,
-        email: editForm.email,
-        phone: editForm.phone,
-        address: editForm.address,
-        city: editForm.city,
-        state: editForm.state,
-      })
-
-      setMessage({ type: "success", text: "Profile updated successfully" })
-      setIsEditing(false)
-    } catch (error) {
-      setMessage({ type: "error", text: "Failed to update profile. Please try again." })
-    } finally {
-      setLoading(false)
-    }
-  }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">

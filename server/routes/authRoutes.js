@@ -19,7 +19,9 @@ router.post('/register', async (req, res) => {
         message: 'Username or email already exists' 
       });
     }
-    
+    console.log(username)
+    console.log(email)
+    console.log(password)
     // Create new user
     const user = new User({
       username,

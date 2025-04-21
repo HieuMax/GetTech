@@ -38,7 +38,7 @@ const HomePage = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data.phones);
+        // console.log(data.phones);
         setProducts(data.phones.splice(0, 8));
         setLoading(false);
       } catch (err) {
