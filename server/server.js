@@ -4,10 +4,14 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const { authenticate } = require("./middleware/auth");
 const connectMongoDB = require("./db");
-const product = require("./models/product"); 
+const product = require("./models/product");
+const Order = require("./models/order");
+const OrderDetail = require("./models/orderDetail");
+
+
 const cloudinary = require("./lib/cloudinary");
-const orderRoutes = require('./routes/orderRoutes');
-const userRoutes = require('./routes/userRoutes');
+const orderRoutes = require("./routes/orderRoutes");
+const userRoutes = require("./routes/userRoutes");
 const cartRoutes = require('./routes/cartRoutes');
 
 // Initialize Express app
@@ -64,37 +68,36 @@ app.get("/", authenticate, async (req, res) => {
 @******************************************************************************************************************************************************
 */
 app.get("/api/products/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const _p = await product.findOne({ id: id });
-      if (!_p) {
-        return res.status(404).json({ message: "Sản phẩm không tồn tại!" });
-      }
-
-      // Get suggest product
-      const name = _p.name;
-      const brand = _p.brand;
-
-      const namePrefix = name ? name.split(" ")[0] : "";
-      const query = {
-        $or: [],
-      };
-      if (namePrefix) {
-        query.$or.push({ name: { $regex: "^" + namePrefix, $options: "i" } });
-      }
-
-      if (brand) {
-        query.$or.push({ brand: brand });
-      }
-  
-      const products = await product.find(query);
-      res.json({ dataProduct: _p, dataSuggest: products });
-    } catch (error) {
-      console.error("Lỗi khi lấy sản phẩm:", error);
-      res.status(500).json({ message: "Lỗi máy chủ khi lấy sản phẩm" });
+  try {
+    const { id } = req.params;
+    const _p = await product.findOne({ id: id });
+    if (!_p) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại!" });
     }
+
+    // Get suggest product
+    const name = _p.name;
+    const brand = _p.brand;
+
+    const namePrefix = name ? name.split(" ")[0] : "";
+    const query = {
+      $or: [],
+    };
+    if (namePrefix) {
+      query.$or.push({ name: { $regex: "^" + namePrefix, $options: "i" } });
+    }
+
+    if (brand) {
+      query.$or.push({ brand: brand });
+    }
+
+    const products = await product.find(query);
+    res.json({ dataProduct: _p, dataSuggest: products });
+  } catch (error) {
+    console.error("Lỗi khi lấy sản phẩm:", error);
+    res.status(500).json({ message: "Lỗi máy chủ khi lấy sản phẩm" });
   }
-)
+});
 
 /*
 @******************************************************************************************************************************************************
@@ -364,6 +367,79 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Something went wrong!" });
 });
 
+// API: Lấy danh sách tất cả orders
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find().populate("userId", "username email"); // Populate userId để lấy thông tin user (tùy chọn)
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách đơn hàng:", error);
+    res.status(500).json({ message: "Lỗi máy chủ khi lấy danh sách đơn hàng" });
+  }
+});
+
+// API: Lấy chi tiết một order
+app.get("/api/orders/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Tìm order theo id
+    const order = await Order.findOne({ id }).populate(
+      "userId",
+      "username email"
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
+    }
+
+    // Tìm tất cả order details liên quan
+    const orderDetails = await OrderDetail.find({ orderId: order._id });
+
+    res.status(200).json({
+      order,
+      orderDetails,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
+    res.status(500).json({ message: "Lỗi máy chủ khi lấy chi tiết đơn hàng" });
+  }
+});
+
+// API: Cập nhật trạng thái của order
+app.patch("/api/orders/:id", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  // Kiểm tra trạng thái hợp lệ
+  const validStatuses = ["pending", "shipping", "completed", "cancelled"];
+  if (!status || !validStatuses.includes(status)) {
+    return res.status(400).json({ message: "Trạng thái không hợp lệ!" });
+  }
+
+  try {
+    // Tìm và cập nhật order
+    const updatedOrder = await Order.findOneAndUpdate(
+      { id },
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
+    }
+
+    res.status(200).json({
+      message: "Cập nhật trạng thái đơn hàng thành công!",
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi máy chủ khi cập nhật trạng thái đơn hàng" });
+  }
+});
 /*
 @******************************************************************************************************************************************************
 @ START SERVER

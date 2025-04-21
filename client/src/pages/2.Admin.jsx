@@ -3,7 +3,7 @@ import SidebarAdmin from "../components/sidebarAdmin";
 import { Outlet, useNavigate } from "react-router-dom";
 import NavbarAdmin from "../components/ui/NavbarAdmin";
 import { useAuth } from "../store/AuthContext";
-
+import { ToastContainer } from "react-toastify";
 const Admin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -21,11 +21,12 @@ const Admin = () => {
           Back to Shop
         </button>
       </div>
-    )
+    );
   }
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      <ToastContainer position="bottom-right" />
       <NavbarAdmin />
       <hr />
       <div className="flex w-full">

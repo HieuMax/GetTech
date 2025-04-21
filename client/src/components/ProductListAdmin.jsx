@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ConfirmModal from "./ConfirmModal";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ProductListAdmin = ({ token }) => {
   const [list, setList] = useState([]);
@@ -8,6 +9,7 @@ const ProductListAdmin = ({ token }) => {
   const [selectedId, setSelectedId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
@@ -24,23 +26,27 @@ const ProductListAdmin = ({ token }) => {
   };
 
   const fetchList = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:5000/api/phones");
       const result = await response.json();
       setList(result);
-      setFilteredList(result); // Initialize filtered list
-      console.log(result);
+      setFilteredList(result);
     } catch (error) {
       console.log(error);
-      // toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchList();
+  }, []);
 
   // Filter products based on search term and category
   useEffect(() => {
     let filtered = list;
-
-    // Filter by search term (name or ID)
+    // Tìm kiếm theo tên hoặc ID
     if (searchTerm) {
       filtered = filtered.filter(
         (item) =>
@@ -48,13 +54,12 @@ const ProductListAdmin = ({ token }) => {
           item.id.toString().includes(searchTerm)
       );
     }
-    // Filter by category
+    // Lọc theo danh mục
     if (selectedCategory) {
       filtered = filtered.filter((item) => item.id.includes(selectedCategory));
     }
-
     setFilteredList(filtered);
-    setCurrentPage(1); // Reset to page 1 when filters change
+    setCurrentPage(1); // Reset trang về số 1 khi filter
   }, [searchTerm, selectedCategory, list]);
 
   // Get unique categories for the dropdown
@@ -81,15 +86,12 @@ const ProductListAdmin = ({ token }) => {
         setList((prevList) =>
           prevList.filter((item) => item.id !== selectedId)
         );
-        console.log(result.message);
-        // toast.success(result.message);
+        toast.success(result.message);
       } else {
         console.error(result.message);
-        // toast.error(result.message);
       }
     } catch (error) {
       console.log(error);
-      // toast.error(error.message);
     } finally {
       setIsLoading(false);
       setSelectedId(null);
@@ -100,10 +102,6 @@ const ProductListAdmin = ({ token }) => {
     setIsModalOpen(false);
     confirmDelete();
   };
-
-  useEffect(() => {
-    fetchList();
-  }, []);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredList.length / itemsPerPage);
@@ -146,7 +144,6 @@ const ProductListAdmin = ({ token }) => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <p className="text-white mt-4 text-lg">Đang xóa sản phẩm...</p>
           </div>
         </div>
       )}
@@ -177,7 +174,7 @@ const ProductListAdmin = ({ token }) => {
           </select>
 
           {/* Items per page */}
-          <div>
+          <div className="flex justify-center items-center">
             <label className="mr-2">Số sản phẩm/trang:</label>
             <select
               value={itemsPerPage}
@@ -197,41 +194,47 @@ const ProductListAdmin = ({ token }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm">
-          <b>Image</b>
-          <b>Image</b>
-          <b>Name</b>
-          <b>Description</b>
-          <b>Brand</b>
-          <b>Price</b>
-          <b className="text-right md:text-center cursor-pointer">Action</b>
+        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-gray-100 text-sm font-semibold text-gray-700 rounded-lg">
+          <span>ID</span>
+          <span>Image</span>
+          <span>Name</span>
+          <span>Description</span>
+          <span>Brand</span>
+          <span>Price</span>
+          <span className="text-right md:text-center">Action</span>
         </div>
 
         {paginatedItems.map((item, index) => (
           <div
-            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[2fr_1fr_1fr_2fr_1fr_1fr_1fr] items-center py-1 px-2 border text-sm"
+            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[2fr_1fr_1fr_2fr_1fr_1fr_1fr] items-center py-3 px-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow h-20" // Cố định chiều cao với h-20 (80px)
             key={index}
           >
-            <p>{item.id}</p>
-            <img className="w-12" src={item.image} alt="" />
-            <p>{item.name}</p>
-            <p>{item.description}</p>
-            <p>{item.brand}</p>
-            <p>${item.price}</p>
-            <p className="flex gap-2 justify-end md:justify-center">
+            <span className="text-gray-600 truncate">{item.id}</span>
+            <img
+              className="w-12 h-12 object-contain rounded" // Hình ảnh vừa khung, không méo
+              src={item.image}
+              alt={item.name}
+            />
+            <span className="text-gray-800 font-medium truncate">
+              {item.name}
+            </span>
+            <span className="text-gray-600 truncate">{item.description}</span>
+            <span className="text-gray-600 truncate">{item.brand}</span>
+            <span className="text-green-600 font-semibold">${item.price}</span>
+            <div className="flex gap-3 justify-end md:justify-center">
               <button
                 onClick={() => navigate(`/admin/edit/${item.id}`)}
-                className="text-blue-500 underline"
+                className="text-blue-500 hover:text-blue-700 font-medium transition-colors"
               >
                 Sửa
               </button>
-              <span
+              <button
                 onClick={() => handleDeleteClick(item.id)}
-                className="cursor-pointer text-lg text-red-500"
+                className="text-red-500 hover:text-red-700 text-lg font-bold transition-colors"
               >
                 X
-              </span>
-            </p>
+              </button>
+            </div>
           </div>
         ))}
       </div>
