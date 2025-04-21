@@ -46,6 +46,7 @@ const ProductDetail = () => {
 
     if (product.dataProduct) {
       // Add product to cart with selected quantity
+      console.log(quantity)
       addToCart({
         id: product.dataProduct.id,
         name: product.dataProduct.name,

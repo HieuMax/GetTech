@@ -77,4 +77,43 @@ router.put('/password', authenticate, async (req, res) => {
     }
 });
 
+// Get user's cart
+router.get('/cart', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('cart');
+    res.json(user.cart);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching cart' });
+  }
+});
+
+// Update user's cart
+router.put('/cart', authenticate, async (req, res) => {
+  try {
+    const { cart } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { cart },
+      { new: true }
+    ).select('cart');
+    res.json(user.cart);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating cart' });
+  }
+});
+
+// Clear user's cart
+router.delete('/cart', authenticate, async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { cart: [] },
+      { new: true }
+    ).select('cart');
+    res.json(user.cart);
+  } catch (error) {
+    res.status(500).json({ message: 'Error clearing cart' });
+  }
+});
+
 module.exports = router; 

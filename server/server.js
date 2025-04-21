@@ -4,10 +4,11 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const { authenticate } = require("./middleware/auth");
 const connectMongoDB = require("./db");
-const product = require("./models/product");
+const product = require("./models/product"); 
 const cloudinary = require("./lib/cloudinary");
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 // Initialize Express app
 const app = express();
@@ -23,6 +24,7 @@ connectMongoDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Protected route example
 app.get("/api/protected", authenticate, (req, res) => {

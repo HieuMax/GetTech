@@ -19,13 +19,50 @@ export function AuthProvider({ children }) {
         const accessToken = localStorage.getItem("accessToken")
 
         if (storedUser && accessToken) {
-          // Validate token with your backend if needed
-          // const isValid = await validateToken(accessToken)
-          // if (!isValid) {
-          //   throw new Error("Invalid token")
-          // }
+          try {
+            if (accessToken) {
+              // Verify token with backend
+                 const response = await fetch(
+                "http://localhost:5000/api/auth/profile",
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`, // Lấy token từ localStorage
+                  },
+                }
+              );
+              const data = await response.json();
 
-          // setUser(JSON.parse(storedUser))
+
+              if (data) {
+                // console.log(data)
+                setUser({
+                  id: data.userId,
+                  name: data.name,
+                  mail: data.mail,
+                  role: data.role,
+                  address: data.address,
+                  city: data.city,
+                  state: data.state,
+                  phone: data.phone,
+                  iat: data.iat,
+                })
+                // set
+              }
+            }
+          } catch (error) {
+            console.error('Auth check failed:', error);
+            const refreshed = await refreshAccessToken()
+            if (!refreshed) {
+              // If token is invalid, clear it
+              localStorage.removeItem('accessToken');
+              // localStorage.removeItem('accessToken');
+              localStorage.removeItem('user');
+
+            }
+          } finally {
+            setLoading(false);
+          }
         }
       } catch (error) {
         console.error("Authentication error:", error)
