@@ -1,11 +1,11 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const authRoutes = require("./routes/authRoutes");
-const { authenticate } = require("./middleware/auth");
-const connectMongoDB = require("./db");
-const Product = require("./Product");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const authRoutes = require('./routes/authRoutes');
+const { authenticate } = require('./middleware/auth');
+const connectMongoDB = require('./db');
+const Product = require('./Product');
 
 // Initialize Express app
 const app = express();
@@ -18,124 +18,34 @@ app.use(express.json());
 connectMongoDB();
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use('/api/auth', authRoutes);
 
 // Protected route example
-app.get("/api/protected", authenticate, (req, res) => {
-  res.json({
-    message: "This is a protected route",
-    user: req.user,
+app.get('/api/protected', authenticate, (req, res) => {
+  res.json({ 
+    message: 'This is a protected route', 
+    user: req.user 
   });
 });
 
 // GET all products - Protected
-app.get("/api/objects", authenticate, async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving products", error: error.message });
-  }
+app.get('/api/objects', authenticate, async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving products', error: error.message });
+    }
 });
 
 // Root route - Protected
-app.get("/", authenticate, async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving products", error: error.message });
-  }
-});
-
-// GET single product by ID - Protected
-app.get("/api/objects/:id", authenticate, async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
-    res.json(product);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving product", error: error.message });
-  }
-});
-
-// POST new product - Protected
-app.post("/api/objects", authenticate, async (req, res) => {
-  const { name, class: className, mssv } = req.body;
-
-  // Validate required fields
-  if (!name || !className || !mssv) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
-
-  try {
-    // Check if a product with the same mssv already exists
-    const existingProduct = await Product.findOne({ mssv });
-    if (existingProduct) {
-      return res.status(400).json({ message: "MSSV already exists" });
+app.get('/', authenticate, async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving products', error: error.message });
     }
-
-    // Create a new product instance
-    const newProduct = new Product({
-      name,
-      class: className,
-      mssv: mssv,
-    });
-
-    // Save the product to the database
-    const savedProduct = await newProduct.save();
-    return res.status(201).json(savedProduct);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error saving product", error: error.message });
-  }
-});
-
-// PUT update product - Protected
-app.put("/api/objects/:id", authenticate, async (req, res) => {
-  const { name, class: className } = req.body;
-
-  try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      { name, class: className },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.json(updatedProduct);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating product", error: error.message });
-  }
-});
-
-// DELETE product - Protected
-app.delete("/api/objects/:id", authenticate, async (req, res) => {
-  try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-
-    if (!deletedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.json({ message: "Product deleted successfully" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting product", error: error.message });
-  }
 });
 
 const phoneSchema = new mongoose.Schema(
@@ -180,8 +90,34 @@ const Phone = mongoose.model("Phone", phoneSchema);
 // Hàm API: GET tất cả sản phẩm
 app.get("/api/phones", async (req, res) => {
   try {
-    const phones = await Phone.find().sort({ createdAt: -1 }); // sắp xếp theo mới nhất
-    res.json(phones);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 0;
+
+    if (limit === 0) {
+      const phones = await Phone.find().sort({ createdAt: -1 });
+      return res.json({
+        total: phones.length,
+        page: 1,
+        limit: phones.length,
+        phones,
+      });
+    }
+
+    const skip = (page - 1) * limit;
+
+    const phones = await Phone.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPhones = await Phone.countDocuments();
+
+    res.json({
+      total: totalPhones,
+      page,
+      limit,
+      phones,
+    });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách sản phẩm:", error);
     res.status(500).json({ message: "Lỗi máy chủ khi lấy danh sách sản phẩm" });
@@ -260,84 +196,6 @@ app.get("/api/phones/next-id/:category", async (req, res) => {
   } catch (err) {
     console.error("Lỗi tạo ID:", err);
     res.status(500).json({ message: "Lỗi máy chủ khi tạo ID" });
-  }
-});
-// Hàm API: DELETE sản phẩm theo ID
-app.delete("/api/deletePhone/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const deletedPhone = await Phone.findOneAndDelete({ ID: id });
-
-    if (!deletedPhone) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy sản phẩm để xóa!" });
-    }
-
-    return res.json({
-      message: "Xóa sản phẩm thành công!",
-      phone: deletedPhone,
-    });
-  } catch (error) {
-    console.error("Lỗi khi xóa sản phẩm:", error);
-    return res.status(500).json({ message: "Lỗi máy chủ khi xóa sản phẩm" });
-  }
-});
-app.get("/api/phone/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const phone = await Phone.findOne({ ID: id });
-
-    if (!phone) {
-      return res.status(404).json({ message: "Không tìm thấy sản phẩm!" });
-    }
-
-    return res.json(phone);
-  } catch (error) {
-    console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
-    return res.status(500).json({ message: "Lỗi máy chủ khi lấy sản phẩm" });
-  }
-});
-app.put("/api/updatePhone/:id", async (req, res) => {
-  const { id } = req.params;
-  const { image, name, price, brand, description, rating } = req.body;
-
-  try {
-    if (!image || !name || !price || !brand) {
-      return res
-        .status(400)
-        .json({ message: "Vui lòng điền đầy đủ các trường bắt buộc!" });
-    }
-
-    if (rating < 0 || rating > 5) {
-      return res
-        .status(400)
-        .json({ message: "Đánh giá phải trong khoảng từ 0 đến 5." });
-    }
-
-    const updatedPhone = await Phone.findOneAndUpdate(
-      { ID: id },
-      { image, name, price, brand, description, rating },
-      { new: true }
-    );
-
-    if (!updatedPhone) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy sản phẩm để cập nhật!" });
-    }
-
-    return res.json({
-      message: "Cập nhật sản phẩm thành công!",
-      phone: updatedPhone,
-    });
-  } catch (error) {
-    console.error("Lỗi khi cập nhật sản phẩm:", error);
-    return res
-      .status(500)
-      .json({ message: "Lỗi máy chủ khi cập nhật sản phẩm" });
   }
 });
 
