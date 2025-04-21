@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ConfirmModal from "./ConfirmModal";
 
 const AddProduct = () => {
@@ -8,10 +7,11 @@ const AddProduct = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [pendingSubmit, setPendingSubmit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [formData, setFormData] = useState({
-    ID: "",
+    id: "",
     image: "",
     name: "",
     price: "",
@@ -19,6 +19,7 @@ const AddProduct = () => {
     description: "",
     rating: "",
     category: "",
+    sizeScreen: "",
   });
   const [initialData, setInitialData] = useState(null);
   const categoryMap = {
@@ -43,7 +44,7 @@ const AddProduct = () => {
         .catch((err) => console.error("Lỗi tải sản phẩm:", err));
     } else {
       const emptyData = {
-        ID: "",
+        id: "",
         image: "",
         name: "",
         price: "",
@@ -51,6 +52,7 @@ const AddProduct = () => {
         description: "",
         rating: "",
         category: "",
+        sizeScreen: "",
       };
       setFormData(emptyData);
       setInitialData(emptyData);
@@ -58,19 +60,17 @@ const AddProduct = () => {
     }
   }, [id]);
 
-  const [successMessage, setSuccessMessage] = useState("");
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "category") {
       if (value === "") {
-        setFormData((prev) => ({ ...prev, ID: "" }));
+        setFormData((prev) => ({ ...prev, id: "" }));
       } else {
         fetch(`http://localhost:5000/api/phones/next-id/${value}`)
           .then((res) => res.json())
-          .then((data) => setFormData((prev) => ({ ...prev, ID: data.nextID })))
+          .then((data) => setFormData((prev) => ({ ...prev, id: data.nextID })))
           .catch((err) => console.error("Lỗi lấy ID:", err));
       }
     }
@@ -93,9 +93,13 @@ const AddProduct = () => {
       return;
     }
     setShowConfirm(true);
+
+    console.log("Form data:", formData);
   };
 
   const submitProduct = async () => {
+    setIsLoading(true); // Bật trạng thái loading
+
     const finalData = {
       ...formData,
       image: imagePreview,
@@ -106,44 +110,54 @@ const AddProduct = () => {
       : "http://localhost:5000/api/createPhone";
     const method = id ? "PUT" : "POST";
 
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(finalData),
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalData),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      setSuccessMessage(
-        id ? "Cập nhật sản phẩm thành công!" : "Thêm sản phẩm thành công!"
-      );
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      setTimeout(() => setSuccessMessage(""), 4000);
+      if (res.ok) {
+        setSuccessMessage(
+          id ? "Cập nhật sản phẩm thành công!" : "Thêm sản phẩm thành công!"
+        );
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => setSuccessMessage(""), 4000);
 
-      if (!id) {
-        const emptyData = {
-          ID: "",
-          image: "",
-          name: "",
-          price: "",
-          brand: "",
-          description: "",
-          rating: "",
-          category: "",
-        };
-        setFormData(emptyData);
-        setInitialData(emptyData);
-        setImagePreview(null);
+        if (!id) {
+          const emptyData = {
+            id: "",
+            image: "",
+            name: "",
+            price: "",
+            brand: "",
+            description: "",
+            rating: "",
+            category: "",
+            sizeScreen: "",
+          };
+          setFormData(emptyData);
+          setInitialData(emptyData);
+          setImagePreview(null);
+        } else {
+          setInitialData(finalData);
+        }
       } else {
-        setInitialData(finalData);
+        alert(data.message || "Có lỗi xảy ra.");
       }
-    } else {
-      alert(data.message || "Có lỗi xảy ra.");
+    } catch (error) {
+      console.error("Lỗi khi submit sản phẩm:", error);
+      alert("Lỗi máy chủ khi xử lý yêu cầu.");
+    } finally {
+      setIsLoading(false); // Tắt trạng thái loading
     }
+  };
 
-    setPendingSubmit(false);
-    setShowConfirm(false);
+  const handleConfirm = () => {
+    setShowConfirm(false); // Đóng modal ngay khi nhấn xác nhận
+    submitProduct(); // Gọi hàm submit
   };
 
   const handleImageChange = (e) => {
@@ -187,7 +201,7 @@ const AddProduct = () => {
               <input
                 type="text"
                 name="ID"
-                value={formData.ID}
+                value={formData.id}
                 readOnly
                 className="w-full p-2 border rounded bg-gray-100"
               />
@@ -198,7 +212,7 @@ const AddProduct = () => {
               {id ? (
                 <input
                   type="text"
-                  value={categoryMap[formData.ID.slice(4, 8)] || ""}
+                  value={categoryMap[formData.id.slice(4, 8)] || ""}
                   name="category"
                   readOnly
                   className="w-full p-2 border rounded bg-gray-100"
@@ -287,7 +301,16 @@ const AddProduct = () => {
                 className="w-full p-2 border rounded"
               />
             </div>
-
+            <div>
+              <label className="font-semibold">Size Screen</label>
+              <input
+                type="number"
+                name="sizeScreen"
+                value={formData.sizeScreen}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
             <div>
               <label className="font-semibold">Hãng</label>
               <input
@@ -323,9 +346,42 @@ const AddProduct = () => {
 
             <button
               type="submit"
-              className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
+              className={`py-2 rounded text-white ${
+                isLoading
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
+              disabled={isLoading}
             >
-              {id ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Đang xử lý...
+                </span>
+              ) : id ? (
+                "Chỉnh sửa sản phẩm"
+              ) : (
+                "Thêm sản phẩm mới"
+              )}
             </button>
           </form>
         </div>
@@ -336,7 +392,7 @@ const AddProduct = () => {
         message={`Bạn có chắc chắn muốn ${
           id ? "cập nhật" : "thêm"
         } sản phẩm này không?`}
-        onConfirm={submitProduct}
+        onConfirm={handleConfirm}
         onCancel={() => setShowConfirm(false)}
       />
     </>

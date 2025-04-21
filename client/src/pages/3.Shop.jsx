@@ -15,7 +15,7 @@ export const Shop = () => {
   const fetchProducts = async (page) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/phones?page=${page}&limit=8`
+        `http://localhost:5000/api/home/phones?page=${page}&limit=8`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -67,7 +67,8 @@ export const Shop = () => {
           hasMore={hasMore}
           loader={
             <div className="text-center py-5">Loading more products...</div>
-          }>
+          }
+        >
           <ProductList isHome={false} productList={products} />
         </InfiniteScroll>
       )}

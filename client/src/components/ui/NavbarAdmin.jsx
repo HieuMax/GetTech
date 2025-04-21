@@ -25,6 +25,7 @@ const NavbarAdmin = () => {
         // Chuyển hướng đến trang đăng nhập
         navigate("/");
         alert(data.message); // Hiển thị thông báo đăng xuất thành công
+        window.location.reload(); // Tải lại trang để cập nhật trạng thái
       } else {
         // Xử lý lỗi từ API
         alert(data.message || "Logout failed");
