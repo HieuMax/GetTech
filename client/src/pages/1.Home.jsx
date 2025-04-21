@@ -33,7 +33,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/phones");
+        const response = await fetch("http://localhost:5000/api/home/phones");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -57,7 +57,8 @@ const HomePage = () => {
         {services.map((service, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 border rounded-xl px-5 py-4 shadow-sm bg-white">
+            className="flex items-center gap-3 border rounded-xl px-5 py-4 shadow-sm bg-white"
+          >
             <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#F2F4F7]">
               <i className={`${service.iconClass} text-gray-500 text-xl`}></i>
               <i className={` text-gray-500 text-xl`}></i>
