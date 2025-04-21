@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ConfirmModal from "./ConfirmModal";
 import { toast } from "react-toastify";
+import { API_URL } from "..";
 
 const AddProduct = () => {
   const [imagePreview, setImagePreview] = useState(null);
@@ -36,7 +37,7 @@ const AddProduct = () => {
   useEffect(() => {
     if (id) {
       setIsLoading(true);
-      fetch(`http://localhost:5000/api/phone/${id}`)
+      fetch(`${API_URL}/api/phone/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setFormData(data);
@@ -71,7 +72,7 @@ const AddProduct = () => {
       if (value === "") {
         setFormData((prev) => ({ ...prev, id: "" }));
       } else {
-        fetch(`http://localhost:5000/api/phones/next-id/${value}`)
+        fetch(`${API_URL}/api/phones/next-id/${value}`)
           .then((res) => res.json())
           .then((data) => setFormData((prev) => ({ ...prev, id: data.nextID })))
           .catch((err) => console.error("Lỗi lấy ID:", err));
@@ -109,8 +110,8 @@ const AddProduct = () => {
     };
 
     const url = id
-      ? `http://localhost:5000/api/updatePhone/${id}`
-      : "http://localhost:5000/api/createPhone";
+      ? `${API_URL}/api/updatePhone/${id}`
+      : `${API_URL}/api/createPhone`;
     const method = id ? "PUT" : "POST";
 
     try {

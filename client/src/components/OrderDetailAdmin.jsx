@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { API_URL } from "..";
 
 const OrderDetailAdmin = () => {
   const { id } = useParams();
@@ -15,7 +16,7 @@ const OrderDetailAdmin = () => {
   const fetchOrderDetails = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${id}`);
+      const response = await fetch(`${API_URL}/api/orders/${id}`);
       const result = await response.json();
       setOrder(result.order);
       setOrderDetails(result.orderDetails || []);
@@ -31,7 +32,7 @@ const OrderDetailAdmin = () => {
   const updateStatus = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
+      const response = await fetch(`${API_URL}/api/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

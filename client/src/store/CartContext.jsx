@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import { useAuth } from "./AuthContext"
+import { API_URL } from ".."
 
 const CartContext = createContext(undefined)
 
@@ -78,7 +79,7 @@ export function CartProvider({ children }) {
         throw new Error("No access token found")
       }
 
-      const response = await fetch("http://localhost:5000/api/cart", {
+      const response = await fetch(`${API_URL}/api/cart`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -94,8 +95,8 @@ export function CartProvider({ children }) {
         setCartItems(data.items)
       }
     } catch (err) {
-      console.error("Error fetching user cart:", err)
-      throw err
+      // console.error("Error fetching user cart:", err)
+      // throw err
     }
   }
 
@@ -108,7 +109,7 @@ export function CartProvider({ children }) {
         return
       }
 
-      await fetch("http://localhost:5000/api/cart", {
+      await fetch(`${API_URL}/api/cart`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -117,7 +118,7 @@ export function CartProvider({ children }) {
         body: JSON.stringify({ items: cartItems }),
       })
     } catch (err) {
-      console.error("Error syncing cart with database:", err)
+      // console.error("Error syncing cart with database:", err)
     }
   }
 
@@ -153,7 +154,7 @@ export function CartProvider({ children }) {
           throw new Error("No access token found")
         }
 
-        await fetch(`http://localhost:5000/api/cart/item/${product.id}`, {
+        await fetch(`${API_URL}/api/cart/item/${product.id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -180,7 +181,7 @@ export function CartProvider({ children }) {
           throw new Error("No access token found")
         }
 
-        await fetch(`http://localhost:5000/api/cart/item/${id}`, {
+        await fetch(`${API_URL}/api/cart/item/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -210,7 +211,7 @@ export function CartProvider({ children }) {
           throw new Error("No access token found")
         }
 
-        await fetch(`http://localhost:5000/api/cart/item/${id}`, {
+        await fetch(`${API_URL}/api/cart/item/${id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -237,7 +238,7 @@ export function CartProvider({ children }) {
           throw new Error("No access token found")
         }
 
-        await fetch("http://localhost:5000/api/cart", {
+        await fetch(`${API_URL}/api/cart`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -265,7 +266,7 @@ export function CartProvider({ children }) {
         throw new Error("No access token found")
       }
 
-      await fetch("http://localhost:5000/api/cart/merge", {
+      await fetch(`${API_URL}/api/cartmerge`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

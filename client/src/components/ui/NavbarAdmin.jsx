@@ -5,38 +5,6 @@ import { useAuth } from "../../store/AuthContext";
 const NavbarAdmin = () => {
   const navigate = useNavigate(); // Hook để chuyển hướng
   const { user, logout } = useAuth(); // Lấy thông tin người dùng từ AuthContext
-
-  // const handleLogout = async () => {
-  //   try {
-  //     // Gửi yêu cầu POST đến API logout
-  //     const response = await fetch("http://localhost:5000/api/auth/logout", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Lấy token từ localStorage
-  //       },
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (response.ok) {
-  //       // Xóa token khỏi localStorage
-  //       localStorage.removeItem("accessToken");
-  //       localStorage.removeItem("refreshToken"); // Nếu bạn cũng lưu refresh token
-
-  //       // Chuyển hướng đến trang đăng nhập
-  //       navigate("/");
-  //       alert(data.message); // Hiển thị thông báo đăng xuất thành công
-  //     } else {
-  //       // Xử lý lỗi từ API
-  //       alert(data.message || "Logout failed");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during logout:", error);
-  //     alert("An error occurred during logout");
-  //   }
-  // };
-
   if (user && user.role !== "admin") {
     return navigate("/"); // Nếu người dùng không phải là admin, chuyển hướng về trang chính
   }

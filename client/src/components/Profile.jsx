@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { FaSignOutAlt } from "react-icons/fa"
 import { useAuth } from "../store/AuthContext"
+import { API_URL } from ".."
 
 export default function Profile() {
   // Get user and logout function from auth context
@@ -80,7 +81,7 @@ export default function Profile() {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch(`${API_URL}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +148,7 @@ export default function Profile() {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('http://localhost:5000/api/users/password', {
+      const response = await fetch(`${API_URL}/api/users/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

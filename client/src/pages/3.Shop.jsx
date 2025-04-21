@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import { ProductList } from "../components/ProductList"
 import { FaSearch, FaFilter } from "react-icons/fa"
+import { API_URL } from ".."
 
 // Category mapping for display names
 const CATEGORY_MAP = {
@@ -74,7 +75,7 @@ export function Shop() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/phones")
+        const response = await fetch(`${API_URL}/api/phones`)
         if (!response.ok) {
           throw new Error("Failed to fetch products")
         }

@@ -1,3 +1,4 @@
+import { API_URL } from "..";
 import { ProductList } from "../components/ProductList";
 import { Banner } from "../components/ui/Banner";
 import { useState, useEffect } from "react";
@@ -35,7 +36,7 @@ const HomePage = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/home/phones?page=1&limit=8`
+          `${API_URL}/api/home/phones?page=1&limit=8`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

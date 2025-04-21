@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ConfirmModal from "./ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { API_URL } from "..";
 
 const ProductListAdmin = ({ token }) => {
   const [list, setList] = useState([]);
@@ -28,7 +29,7 @@ const ProductListAdmin = ({ token }) => {
   const fetchList = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/phones");
+      const response = await fetch(`${API_URL}/api/phones`);
       const result = await response.json();
       setList(result);
       setFilteredList(result);
@@ -75,7 +76,7 @@ const ProductListAdmin = ({ token }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/deletePhone/${selectedId}`,
+        `${API_URL}/api/deletePhone/${selectedId}`,
         {
           method: "DELETE",
         }

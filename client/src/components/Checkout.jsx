@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useCart } from "../store/CartContext"
 import { useAuth } from "../store/AuthContext"
+import { API_URL } from ".."
 
 // Step indicators component
 const CheckoutSteps = ({ currentStep }) => {
@@ -309,7 +310,7 @@ export default function Checkout() {
       }
 
       // Create order
-      const response = await fetch('http://localhost:5000/api/orders/create', {
+      const response = await fetch(`${API_URL}/api/orders/create`, {
         method: 'POST',
         headers,
         body: JSON.stringify(orderData)

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from ".."
 
 // Create the auth context
 const AuthContext = createContext(undefined)
@@ -23,7 +24,7 @@ export function AuthProvider({ children }) {
             if (accessToken) {
               // Verify token with backend
                  const response = await fetch(
-                "http://localhost:5000/api/auth/profile",
+                `${API_URL}/api/auth/profile`,
                 {
                   headers: {
                     "Content-Type": "application/json",
@@ -84,7 +85,7 @@ export function AuthProvider({ children }) {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/refresh-token",
+        `${API_URL}/api/auth/refresh-token`,
         {
           method: "POST",
           headers: {
@@ -138,7 +139,7 @@ export function AuthProvider({ children }) {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -196,7 +197,7 @@ export function AuthProvider({ children }) {
 
     try {
       // Gửi yêu cầu POST đến API logout
-      const response = await fetch("http://localhost:5000/api/auth/logout", {
+      const response = await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -240,7 +241,7 @@ export function AuthProvider({ children }) {
         throw new Error("No access token found")
       }
 
-      const response = await fetch("http://localhost:5000/api/users/profile", {
+      const response = await fetch(`${API_URL}/api/users/profile`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -267,7 +268,7 @@ export function AuthProvider({ children }) {
         throw new Error("No access token found")
       }
 
-      const response = await fetch("http://localhost:5000/api/users/profile", {
+      const response = await fetch(`${API_URL}/api/users/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -313,7 +314,7 @@ export function AuthProvider({ children }) {
         throw new Error("No access token found")
       }
 
-      const response = await fetch("http://localhost:5000/api/users/change-password", {
+      const response = await fetch(`${API_URL}/api/users/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

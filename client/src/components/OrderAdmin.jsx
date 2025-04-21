@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "..";
 
 const OrderAdmin = () => {
   const [orders, setOrders] = useState([]);
@@ -19,7 +20,7 @@ const OrderAdmin = () => {
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/orders");
+      const response = await fetch(`${API_URL}/api/orders`);
       const result = await response.json();
       setOrders(result);
       setFilteredOrders(result);
