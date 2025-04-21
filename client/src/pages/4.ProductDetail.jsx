@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useCart } from "../store/CartContext"
 import "@fortawesome/fontawesome-free/css/all.min.css"
 import { ProductList } from "../components/ProductList"
+import { API_URL } from ".."
 
 const ProductDetail = () => {
   const { productId } = useParams()
@@ -20,7 +21,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${productId}`);
+        const response = await fetch(`${API_URL}/api/products/${productId}`);
         const data = await response.json();
         
         if (response.ok) {
